@@ -96,7 +96,7 @@ export const ConfigPrivateDomain: React.FC<ConfigPrivateDomainProps> = React.mem
                     setStoreUserInfo(user)
                     if (data?.next) {
                         aboutLoginUpload(res.token)
-                        success("企业登录成功")
+                        success("四川电信资阳专版企业登录成功")
                         onClose && onClose()
                         onSuccee && onSuccee()
                     }
@@ -108,7 +108,7 @@ export const ConfigPrivateDomain: React.FC<ConfigPrivateDomainProps> = React.mem
             })
             .catch((err) => {
                 setTimeout(() => setLoading(false), 300)
-                failed("企业登录失败：" + err)
+                failed("四川电信资阳专版企业登录失败：" + err)
             })
             .finally(() => {})
     })
@@ -262,7 +262,7 @@ export const ConfigPrivateDomain: React.FC<ConfigPrivateDomainProps> = React.mem
                     <div className='icon-box'>
                         <img src={yakitImg} className='type-icon-img' />
                     </div>
-                    <div className='title-box'>企业登录</div>
+                    <div className='title-box'>四川电信资阳专版企业登录</div>
                 </div>
             )}
             <Form {...layout} form={form} name='control-hooks' onFinish={(v) => onFinish(v)} size='small'>
