@@ -693,9 +693,8 @@ const HeardMenu: React.FC<HeardMenuProps> = React.memo((props) => {
                     )}
                 </div>
                 <div className={classNames(style["heard-menu-right"])}>
-                    {!isEnpriTraceAgent() && (
-                        <>
                             <ExtraMenu onMenuSelect={onRouteMenuSelect} />
+                            {!isEnpriTraceAgent() && (
                             <Dropdown
                                 overlayClassName={style["customize-drop-menu"]}
                                 overlay={
@@ -763,9 +762,7 @@ const HeardMenu: React.FC<HeardMenuProps> = React.memo((props) => {
                                         自定义{(customizeVisible && <ChevronUpIcon />) || <ChevronDownIcon />}
                                     </div>
                                 </YakitButton>
-                            </Dropdown>
-                        </>
-                    )}
+                            </Dropdown>)}
                     {!isExpand && (
                         <div className={style["heard-menu-sort"]} onClick={() => onExpand(true)}>
                             {!isExpand && <SortDescendingIcon />}
