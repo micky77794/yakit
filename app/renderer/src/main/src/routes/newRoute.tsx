@@ -131,13 +131,13 @@ import {PluginsOnline} from "@/pages/plugins/online/PluginsOnline"
 import {OnlineJudgment} from "@/pages/plugins/onlineJudgment/OnlineJudgment"
 import {isCommunityEdition} from "@/utils/envfile"
 import { NewPayload } from "@/pages/payloadManager/newPayload"
+import { NewCodec } from "@/pages/codec/NewCodec";
 import { DataStatistics } from "@/pages/dataStatistics/DataStatistics"
 import { PluginBatchExecutor } from "@/pages/plugins/pluginBatchExecutor/pluginBatchExecutor"
 import { PluginBatchExecutorPageInfoProps } from "@/store/pageInfo"
 
 const HTTPHacker = React.lazy(() => import("../pages/hacker/httpHacker"))
 const CodecPage = React.lazy(() => import("../pages/codec/CodecPage"))
-const NewCodec = React.lazy(() => import("../pages/codec/NewCodec"))
 const NewHome = React.lazy(() => import("@/pages/newHome/NewHome"))
 const WebFuzzerPage = React.lazy(() => import("@/pages/fuzzer/WebFuzzerPage/WebFuzzerPage"))
 
