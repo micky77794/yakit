@@ -1971,7 +1971,7 @@ const DownloadYakit: React.FC<DownloadYakitProps> = React.memo((props) => {
                                     // @ts-ignore
                                     size: getDownloadProgress().size
                                 })
-                                ipcRenderer.invoke("open-yakit-or-yaklang")
+                                ipcRenderer.invoke("open-yakit-path")
                                 ipcRenderer.invoke("download-update-wait", "yakit")
                             })
                             .catch((e: any) => {
@@ -2022,7 +2022,7 @@ const DownloadYakit: React.FC<DownloadYakitProps> = React.memo((props) => {
                                                 // @ts-ignore
                                                 size: getDownloadProgress().size
                                             })
-                                            ipcRenderer.invoke("open-yakit-or-yaklang")
+                                            ipcRenderer.invoke("open-yakit-path")
                                             ipcRenderer.invoke("download-update-wait", "yakit")
                                         })
                                         .catch((e: any) => {
