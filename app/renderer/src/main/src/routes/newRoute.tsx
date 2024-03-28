@@ -1453,13 +1453,11 @@ export const PrivateSimpleRouteMenu: PrivateRouteMenuProps[] = [
                 yakScripName: ResidentPluginName.BasicCrawler
             },
             {
-                page: YakitRoute.Plugin_OP,
-                label: "空间引擎",
-                icon: getFixedPluginIcon(ResidentPluginName.SpaceEngine),
-                hoverIcon: getFixedPluginHoverIcon(ResidentPluginName.SpaceEngine),
-                describe: getFixedPluginDescribe(ResidentPluginName.SpaceEngine),
-                yakScripName: ResidentPluginName.SpaceEngine
-            },
+                page: YakitRoute.Space_Engine,
+                icon: <PrivateOutlineSpaceEngineIcon />,
+                hoverIcon: <PrivateSolidSpaceEngineIcon />,
+                ...YakitRouteToPageInfo[YakitRoute.Space_Engine]
+            }
         ]
     },
     {
