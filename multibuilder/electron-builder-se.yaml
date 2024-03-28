@@ -87,8 +87,8 @@ nsis:
   perMachine: false
   deleteAppDataOnUninstall: true
   allowToChangeInstallationDirectory: true 
-  installerIcon: app/assets/yakitselogo.ico 
-  uninstallerIcon: app/assets/yakitselogo.ico 
+  installerIcon: app/assets/telecom_logo_small.ico 
+  uninstallerIcon: app/assets/telecom_logo_small.ico 
   unicode: true
   include: build/yakit_build.nsh
   license: LICENSE.md
