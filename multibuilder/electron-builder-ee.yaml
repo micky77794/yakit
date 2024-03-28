@@ -1,7 +1,7 @@
 appId: 'io.yaklang.enpritrace'
 extraMetadata: 
   name: enpritrace
-productName: 'EnpriTrace'
+productName: 'YAKIT网络安全单兵测试系统V2.0'
 copyright: Copyright © 2021 v1ll4n
 
 extraFiles:
