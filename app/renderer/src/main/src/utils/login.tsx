@@ -2,7 +2,7 @@ import {UserInfoProps} from "@/store"
 import {NetWorkApi} from "@/services/fetch"
 import {API} from "@/services/swagger/resposeType"
 import {getRemoteValue} from "./kv"
-import {globalUserLogout, isEnpriTraceAgent} from "@/utils/envfile"
+import {globalUserLogout, isEnpriTrace, isEnpriTraceAgent} from "@/utils/envfile"
 import emiter from "./eventBus/eventBus"
 const {ipcRenderer} = window.require("electron")
 
@@ -36,7 +36,7 @@ export const loginOutLocal = (userInfo: UserInfoProps) => {
                 OnlineBaseUrl
             })
             .finally(() => {
-                ipcRenderer.send("user-sign-out")
+                ipcRenderer.send("user-sign-out",{isEnpriTrace:isEnpriTrace()})
                 emiter.emit("onRefLocalPluginList", "")
             })
     })
