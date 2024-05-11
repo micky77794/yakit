@@ -1,0 +1,35 @@
+.log-management{
+padding: 10px;
+        flex: 1;
+        overflow: hidden auto;
+        .table-header {
+            display: flex;
+            gap: 16px;
+            .title{
+                display: flex;
+                align-items: center;
+            }
+            .extra{
+                flex: 1;
+                display: flex;
+                align-items: center;
+                justify-content: end;
+                .operation-range-picker{
+                    :global{
+                        .ant-picker-range{
+                            padding: 3px 8px;
+                        }
+                    }
+                    
+                }
+                .opt{
+                    display: flex;
+                    gap: 16px;
+                }
+            }
+        }
+        :global {
+
+        }
+        
+}
