@@ -15,12 +15,18 @@ import moment from "moment"
 import locale from "antd/es/date-picker/locale/zh_CN"
 import {formatTimestamp} from "@/utils/timeUtil"
 import {PaginationSchema} from "../invoker/schema"
+import {getRemoteValue, setRemoteValue} from "@/utils/kv"
+import {useStore} from "@/store"
+import {isEnpriTrace} from "@/utils/envfile"
+import {RemoteGV} from "@/yakitGV"
 const {ipcRenderer} = window.require("electron")
+
+const RecordOperationHistory = "RecordOperationHistory"
 
 export interface LogItemProps {
     user_name: string
     ip: string
-    operate: string
+    describe: string
     time: number
 }
 
@@ -36,6 +42,35 @@ export const LogManagement: React.FC<LogManagementProps> = (props) => {
         OrderBy: "updated_at",
         Order: "desc"
     })
+
+    const update = useMemoizedFn((params?: {user_name?: string; ip?: string; describe?: string; time?: number}) => {
+        getRemoteValue(RecordOperationHistory).then((data) => {
+            console.log("ddd", data)
+            if (!data) return
+            try {
+                let arr: LogItemProps[] = JSON.parse(data)
+                if (params) {
+                    const {user_name, ip, describe, time} = params
+                    if (user_name && user_name.length > 0) {
+                        arr = arr.filter((item) => item.user_name.includes(user_name))
+                    }
+                    if (ip && ip.length > 0) {
+                        arr = arr.filter((item) => item.ip.includes(ip))
+                    }
+                    if (describe && describe.length > 0) {
+                        arr = arr.filter((item) => item.describe.includes(describe))
+                    }
+                }
+
+                console.log("update---", arr)
+                setDataSource(arr)
+            } catch (error) {}
+        })
+    })
+
+    useEffect(() => {
+        update()
+    }, [])
 
     const getData = useMemoizedFn(() => {
         return new Promise((resolve) => {})
@@ -53,7 +88,7 @@ export const LogManagement: React.FC<LogManagementProps> = (props) => {
             },
             {
                 title: "操作",
-                dataIndex: "operate"
+                dataIndex: "describe"
             },
             {
                 title: "时间",
@@ -63,7 +98,9 @@ export const LogManagement: React.FC<LogManagementProps> = (props) => {
         ]
     }, [])
 
-    const onFinish = useMemoizedFn(() => {})
+    const onFinish = useMemoizedFn(() => {
+        update()
+    })
     return (
         <div className={styles["log-management"]}>
             <Table
@@ -85,7 +122,7 @@ export const LogManagement: React.FC<LogManagementProps> = (props) => {
                                         </Form.Item>
                                         <Form.Item label={"时间"} name='time'>
                                             <YakitDatePicker.RangePicker
-                                                size="small"
+                                                size='small'
                                                 style={{width: 200}}
                                                 locale={locale}
                                                 wrapperClassName={styles["operation-range-picker"]}
@@ -102,11 +139,11 @@ export const LogManagement: React.FC<LogManagementProps> = (props) => {
                                                 // }}
                                             />
                                         </Form.Item>
+                                        <div className={styles["opt"]}>
+                                            <YakitButton htmlType='submit'>搜索</YakitButton>
+                                            <ExportExcel getData={getData} fileName='日志管理' />
+                                        </div>
                                     </Form>
-                                    <div className={styles["opt"]}>
-                                        <YakitButton htmlType='submit' >搜索</YakitButton>
-                                        <ExportExcel getData={getData} fileName='日志管理' />
-                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -134,4 +171,53 @@ export const LogManagement: React.FC<LogManagementProps> = (props) => {
             />
         </div>
     )
+}
+
+// 获取私有域地址
+const fetchPrivateDomain = (): Promise<string> => {
+    return new Promise((resolve, reject) => {
+        getRemoteValue(RemoteGV.HttpSetting).then((value: string) => {
+            if (value) {
+                try {
+                    resolve(JSON.parse(value)?.BaseUrl)
+                } catch (error) {
+                    resolve("")
+                }
+            }
+            resolve("")
+        })
+    })
+}
+
+export interface RecordOperationProps {
+    user_name: string
+    ip?: string
+    describe: string
+}
+
+// 监听操作
+export const onRecordOperation = async (item: RecordOperationProps) => {
+    if (!isEnpriTrace()) return
+    let ip = item.ip
+    // 如若没有私有域则获取
+    if (!ip) {
+        ip = await fetchPrivateDomain()
+    }
+    const newItem: LogItemProps = {...item, time: moment().unix(), ip}
+    console.log("useRecordOperation---", newItem)
+    getRemoteValue(RemoteGV.HttpSetting).then((data) => {
+        if (!data) {
+            console.log("chahce", newItem)
+
+            setRemoteValue(RecordOperationHistory, JSON.stringify([newItem]))
+        } else {
+            try {
+                const arr: LogItemProps[] = JSON.parse(data)
+                const newArr: LogItemProps[] = [newItem, ...arr]
+                console.log("cahce1", newArr)
+
+                setRemoteValue(RecordOperationHistory, JSON.stringify(newArr))
+            } catch (error) {}
+        }
+    })
 }

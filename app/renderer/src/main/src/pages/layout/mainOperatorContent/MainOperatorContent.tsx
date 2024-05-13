@@ -1340,6 +1340,7 @@ export const MainOperatorContent: React.FC<MainOperatorContentProps> = React.mem
                 removeMenuPage({route: YakitRoute.RoleAdminPage, menuName: ""})
                 removeMenuPage({route: YakitRoute.HoleCollectPage, menuName: ""})
                 removeMenuPage({route: YakitRoute.ControlAdminPage, menuName: ""})
+                removeMenuPage({route: YakitRoute.Log_Management, menuName: ""})
             } else {
                 // 只要路由不是Plugin_OP,可以把menuName设置为空字符
                 removeMenuPage({route: YakitRoute.LicenseAdminPage, menuName: ""})

@@ -11,6 +11,8 @@ import {PaginationSchema} from "../invoker/schema"
 import type {ColumnsType} from "antd/es/table"
 import type {TreeSelectProps} from "antd"
 import type {DefaultOptionType} from "antd/es/select"
+import { onRecordOperation } from "../logManagement/logManagement"
+import { useStore } from "@/store"
 
 export interface CreateUserFormProps {
     editInfo: API.RoleList | undefined
@@ -43,6 +45,7 @@ const RoleOperationForm: React.FC<CreateUserFormProps> = (props) => {
     const [form] = Form.useForm()
     const [loading, setLoading] = useState<boolean>(false)
     const [treeLoadedKeys,setTreeLoadedKeys] = useState<any>([])
+    const {userInfo, setStoreUserInfo} = useStore()
     const PluginType = {
         yak: "YAK 插件",
         mitm: "MITM 插件",
@@ -130,6 +133,10 @@ const RoleOperationForm: React.FC<CreateUserFormProps> = (props) => {
         })
             .then((res: API.ActionSucceeded) => {
                 if (res.ok) {
+                    onRecordOperation({
+                        user_name: userInfo.companyName||"",
+                        describe:`${userInfo.companyName} 创建角色：${name}`
+                    })
                     onCancel()
                     refresh()
                 }
@@ -288,6 +295,7 @@ const RoleAdminPage: React.FC<RoleAdminPageProps> = (props) => {
     const [total, setTotal] = useState<number>(0)
     // 编辑项信息
     const [editInfo, setEditInfo] = useState<API.RoleList>()
+    const {userInfo, setStoreUserInfo} = useStore()
     const update = (page?: number, limit?: number, order?: string, orderBy?: string) => {
         setLoading(true)
         const paginationProps = {
@@ -332,6 +340,7 @@ const RoleAdminPage: React.FC<RoleAdminPageProps> = (props) => {
     }
 
     const onRemove = (rid: number[]) => {
+        const delName:string = data.filter((item)=>rid.includes(item.id)).map((item)=>item.name).join(",")
         NetWorkApi<RemoveProps, API.NewUrmResponse>({
             method: "delete",
             url: "roles",
@@ -340,6 +349,10 @@ const RoleAdminPage: React.FC<RoleAdminPageProps> = (props) => {
             }
         })
             .then((res) => {
+                onRecordOperation({
+                    user_name: userInfo.companyName||"",
+                    describe:`${userInfo.companyName} 删除角色：${delName}`
+                })
                 success("删除角色成功")
                 update()
             })

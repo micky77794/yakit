@@ -237,6 +237,7 @@ export const FuncDomain: React.FC<FuncDomainProp> = React.memo((props) => {
                     {key: "account-admin", title: "用户管理"},
                     {key: "set-password", title: "修改密码"},
                     {key: "plugin-aduit", title: "插件管理"},
+                    {key:"log-management",title: "日志管理"},
                     {key: "sign-out", title: "退出登录", render: () => LoginOutBox()}
                 ]
                 // 远程中时不显示发起远程 显示退出远程
@@ -507,12 +508,16 @@ export const FuncDomain: React.FC<FuncDomainProp> = React.memo((props) => {
                                             if (key === "data-statistics") {
                                                 onOpenPage({route: YakitRoute.Data_Statistics})
                                             }
+                                            if (key === "log-management") {
+                                                onOpenPage({route: YakitRoute.Log_Management})
+                                            }
                                             if (key === "dynamic-control") {
                                                 setDynamicControlModal(true)
                                             }
                                             if (key === "close-dynamic-control") {
                                                 ipcRenderer.invoke("lougin-out-dynamic-control", {loginOut: false})
                                             }
+                                            
                                         }}
                                     >
                                         {userInfo.platform === "company" ? (

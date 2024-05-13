@@ -1,5 +1,4 @@
 .log-management{
-padding: 10px;
         flex: 1;
         overflow: hidden auto;
         .table-header {
@@ -24,6 +23,7 @@ padding: 10px;
                 }
                 .opt{
                     display: flex;
+                    align-items: center;
                     gap: 16px;
                 }
             }

@@ -17,6 +17,7 @@ import {CacheDropDownGV, RemoteGV} from "@/yakitGV"
 import {YakitRoute} from "@/routes/newRoute"
 import emiter from "@/utils/eventBus/eventBus"
 import {YakitAutoCompleteRefProps} from "../yakitUI/YakitAutoComplete/YakitAutoCompleteType"
+import { onRecordOperation } from "@/pages/logManagement/logManagement"
 const {ipcRenderer} = window.require("electron")
 
 interface OnlineProfileProps {
@@ -70,7 +71,7 @@ export const ConfigPrivateDomain: React.FC<ConfigPrivateDomainProps> = React.mem
     }
     // 企业登录
     const loginUser = useMemoizedFn(() => {
-        const {user_name, pwd} = getFormValue()
+        const {user_name, pwd,BaseUrl} = getFormValue()
         NetWorkApi<API.UrmLoginRequest, API.UserData>({
             method: "post",
             url: "urm/login",
@@ -100,6 +101,11 @@ export const ConfigPrivateDomain: React.FC<ConfigPrivateDomainProps> = React.mem
                     if (data?.next) {
                         aboutLoginUpload(res.token)
                         loginHTTPFlowsToOnline(res.token)
+                        onRecordOperation({
+                            user_name,
+                            ip:BaseUrl,
+                            describe:`登录成功`
+                        })
                         success("企业登录成功")
                         onClose && onClose()
                         onSuccee && onSuccee()
@@ -113,6 +119,11 @@ export const ConfigPrivateDomain: React.FC<ConfigPrivateDomainProps> = React.mem
             .catch((err) => {
                 setTimeout(() => setLoading(false), 300)
                 failed("企业登录失败：" + err)
+                onRecordOperation({
+                    user_name,
+                    ip:BaseUrl,
+                    describe:`登录失败，失败原因：${err}`
+                })
             })
             .finally(() => {})
     })

@@ -667,7 +667,7 @@ export const PluginsLocal: React.FC<PluginsLocalProps> = React.memo((props) => {
         }
     })
     /**详情中调用删除操作 */
-    const onRemovePluginDetailSingle = useMemoizedFn((data) => {
+    const onRemovePluginDetailSingle = useMemoizedFn((data:YakScript) => {
         setRemoveLoading(true)
         onRemovePluginSingleBase(data)
             .then(() => {

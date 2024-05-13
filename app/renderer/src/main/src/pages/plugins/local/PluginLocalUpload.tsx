@@ -16,6 +16,8 @@ import usePluginUploadHooks, {SaveYakScriptToOnlineRequest, SaveYakScriptToOnlin
 
 import "../plugins.scss"
 import styles from "./PluginLocalUpload.module.scss"
+import { onRecordOperation } from "@/pages/logManagement/logManagement"
+import { useStore } from "@/store"
 
 interface PluginLocalUploadProps {
     pluginNames: string[]
@@ -418,7 +420,7 @@ export const PluginLocalUploadSingle: React.FC<PluginLocalUploadSingleProps> = R
     const [current, setCurrent] = useState<number>(0)
     const [isPrivate, setIsPrivate] = useState<boolean>(true)
     const [uploadLoading, setUploadLoading] = useState<boolean>(false)
-
+    const {userInfo, setStoreUserInfo} = useStore()
     const taskTokenRef = useRef(randomString(40))
 
     const {onStart} = usePluginUploadHooks({
@@ -426,6 +428,10 @@ export const PluginLocalUploadSingle: React.FC<PluginLocalUploadSingleProps> = R
         taskToken: taskTokenRef.current,
         onUploadData: () => {},
         onUploadSuccess: () => {
+            onRecordOperation({
+                user_name: userInfo.companyName||"",
+                describe:`${userInfo.companyName} 上传插件：${plugin.ScriptName}`
+            })
             onUploadSuccess()
             onClose()
         },

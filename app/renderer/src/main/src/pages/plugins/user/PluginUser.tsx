@@ -72,6 +72,7 @@ import classNames from "classnames"
 import "../plugins.scss"
 import styles from "./PluginUser.module.scss"
 import {SolidPrivatepluginIcon} from "@/assets/icon/colors"
+import { onRecordOperation } from "@/pages/logManagement/logManagement"
 
 const {ipcRenderer} = window.require("electron")
 
@@ -755,6 +756,7 @@ const PluginUserList: React.FC<PluginUserListProps> = React.memo(
             let deleteParams: API.PluginsWhereDeleteRequest = {
                 uuid: [data.uuid]
             }
+            const delName:string = response.data.filter((item)=>data.uuid.includes(item.uuid)).map((item)=>item.script_name).join(",")
             return new Promise<void>((resolve, reject) => {
                 apiDeletePluginMine(deleteParams)
                     .then(() => {
@@ -769,6 +771,10 @@ const PluginUserList: React.FC<PluginUserListProps> = React.memo(
                         getInitTotal()
                         getPluginGroupList()
                         onRefreshRecycleList()
+                        onRecordOperation({
+                            user_name:userInfo.companyName||"",
+                            describe:`${userInfo.companyName} 删除插件：${delName}`
+                        })
                         // 再做单独处理
                         resolve()
                     })
@@ -782,6 +788,10 @@ const PluginUserList: React.FC<PluginUserListProps> = React.memo(
                 if (!allCheck && selectList.length === 0) {
                     // 删除全部，清空
                     await apiDeletePluginMine()
+                    onRecordOperation({
+                        user_name:userInfo.companyName||"",
+                        describe:`${userInfo.companyName} 删除全部插件`
+                    })
                 } else {
                     // 批量删除
                     let deleteParams: API.PluginsWhereDeleteRequest = {}
@@ -796,6 +806,11 @@ const PluginUserList: React.FC<PluginUserListProps> = React.memo(
                         }
                     }
                     await apiDeletePluginMine(deleteParams)
+                    const delName:string = response.data.filter((item)=>selectList.includes(item.uuid)).map((item)=>item.script_name).join(",")
+                    onRecordOperation({
+                        user_name:userInfo.companyName||"",
+                        describe:`${userInfo.companyName} 删除插件：${delName}`
+                    })
                 }
             } catch (error) {}
 

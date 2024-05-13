@@ -224,7 +224,9 @@ export enum YakitRoute {
     // 数据统计
     Data_Statistics = "data_statistics",
     /**空间引擎 */
-    Space_Engine = "space-engine"
+    Space_Engine = "space-engine",
+    // 日志管理
+    Log_Management = "log-management"
 }
 /**
  * @description 页面路由对应的页面信息
@@ -306,7 +308,8 @@ export const YakitRouteToPageInfo: Record<YakitRoute, {label: string; describe?:
     "beta-webshell-manager": {label: "网站管理"},
     "beta-webshell-opt": {label: "WebShell 实例"},
     data_statistics: {label: "数据统计"},
-    "space-engine": {label: "空间引擎"}
+    "space-engine": {label: "空间引擎"},
+    "log-management": {label:"日志管理"}
 }
 /** 页面路由(无法多开的页面) */
 export const SingletonPageRoute: YakitRoute[] = [
@@ -344,7 +347,8 @@ export const SingletonPageRoute: YakitRoute[] = [
     YakitRoute.Beta_DebugTrafficAnalize,
     YakitRoute.Plugin_Audit,
     YakitRoute.Beta_WebShellManager,
-    YakitRoute.Data_Statistics
+    YakitRoute.Data_Statistics,
+    YakitRoute.Log_Management
 ]
 /** 不需要软件安全边距的页面路由 */
 export const NoPaddingRoute: YakitRoute[] = [
@@ -502,8 +506,7 @@ export const RouteToPage: (props: PageItemProps) => ReactNode = (props) => {
     const {routeKey, yakScriptId, params} = props
     switch (routeKey) {
         case YakitRoute.NewHome:
-            return <LogManagement />
-            // <NewHome />
+            return <NewHome />
         case YakitRoute.HTTPHacker:
             return (
                 <Suspense fallback={<PageLoading />}>
@@ -643,6 +646,8 @@ export const RouteToPage: (props: PageItemProps) => ReactNode = (props) => {
             return <DataStatistics />
         case YakitRoute.Space_Engine:
             return <SpaceEnginePage pageId={params?.id || ""} />
+        case YakitRoute.Log_Management:
+            return <LogManagement />
         default:
             return <div />
     }

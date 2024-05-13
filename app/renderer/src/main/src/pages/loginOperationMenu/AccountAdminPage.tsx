@@ -32,6 +32,7 @@ import {useStore} from "@/store"
 import { unReadable } from "../dynamicControl/DynamicControl"
 import { YakitSelect } from "@/components/yakitUI/YakitSelect/YakitSelect"
 import { YakitSpin } from "@/components/yakitUI/YakitSpin/YakitSpin"
+import { onRecordOperation } from "../logManagement/logManagement"
 const {ipcRenderer} = window.require("electron")
 export interface ShowUserInfoProps extends API.NewUrmResponse {
     onClose: () => void
@@ -103,6 +104,7 @@ const AccountForm: React.FC<AccountFormProps> = (props) => {
     const [selectLoading, setSelectLoading] = useState<boolean>(true)
     const isOnceLoading = useRef<boolean>(true)
     const [depData, setDepData, getDepData] = useGetState<DepData[]>([])
+    const {userInfo, setStoreUserInfo} = useStore()
     const getRolesData = (page?: number, limit?: number) => {
         // 加载角色列表
         isOnceLoading.current = false
@@ -272,6 +274,10 @@ const AccountForm: React.FC<AccountFormProps> = (props) => {
                     const {user_name, password} = res
                     onCancel()
                     refresh(departmentId)
+                    onRecordOperation({
+                        user_name:userInfo.companyName||"",
+                        describe:`${userInfo.companyName} 添加用户：${user_name}`
+                    })
                     const m = showModal({
                         title: "账号信息",
                         content: <ShowUserInfo user_name={user_name} password={password} onClose={() => m.destroy()} />
@@ -1140,6 +1146,7 @@ const AccountAdminPage: React.FC<AccountAdminPageProps> = (props) => {
     }
 
     const onRemove = (uid: string[], department_id?: number) => {
+        const delName:string = dataSource.filter((item)=>uid.includes(item.uid)).map((item)=>item.user_name).join(",")
         NetWorkApi<API.DeleteUrm, API.NewUrmResponse>({
             method: "delete",
             url: "urm",
@@ -1149,6 +1156,10 @@ const AccountAdminPage: React.FC<AccountAdminPageProps> = (props) => {
         })
             .then((res) => {
                 success("删除用户成功")
+                onRecordOperation({
+                    user_name:userInfo.companyName||"",
+                    describe:`${userInfo.companyName} 删除用户：${delName}`
+                })
                 update()
                 // 如若是默认展示的所有数据进行删除处理
                 if (!selectItemId) {
