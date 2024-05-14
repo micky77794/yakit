@@ -11,7 +11,7 @@ import {ExportExcel} from "@/components/DataExport/DataExport"
 import {YakitButton} from "@/components/yakitUI/YakitButton/YakitButton"
 import {YakitInput} from "@/components/yakitUI/YakitInput/YakitInput"
 import {YakitDatePicker} from "@/components/yakitUI/YakitDatePicker/YakitDatePicker"
-import moment from "moment"
+import moment, {Moment} from "moment"
 import locale from "antd/es/date-picker/locale/zh_CN"
 import {formatTimestamp} from "@/utils/timeUtil"
 import {PaginationSchema} from "../invoker/schema"
@@ -19,6 +19,7 @@ import {getRemoteValue, setRemoteValue} from "@/utils/kv"
 import {useStore} from "@/store"
 import {isEnpriTrace} from "@/utils/envfile"
 import {RemoteGV} from "@/yakitGV"
+import {formatJson} from "../yakitStore/viewers/base"
 const {ipcRenderer} = window.require("electron")
 
 const RecordOperationHistory = "RecordOperationHistory"
@@ -28,6 +29,13 @@ export interface LogItemProps {
     ip: string
     describe: string
     time: number
+}
+
+interface ParamsProps {
+    user_name?: string
+    ip?: string
+    keyword?: string
+    time?: [Moment, Moment]
 }
 
 export interface LogManagementProps {}
@@ -43,28 +51,39 @@ export const LogManagement: React.FC<LogManagementProps> = (props) => {
         Order: "desc"
     })
 
-    const update = useMemoizedFn((params?: {user_name?: string; ip?: string; describe?: string; time?: number}) => {
+    const update = useMemoizedFn((params?: ParamsProps) => {
+        setLoading(true)
         getRemoteValue(RecordOperationHistory).then((data) => {
-            console.log("ddd", data)
-            if (!data) return
+            if (!data) {
+                setLoading(false)
+                return
+            }
             try {
                 let arr: LogItemProps[] = JSON.parse(data)
                 if (params) {
-                    const {user_name, ip, describe, time} = params
+                    const {user_name, ip, keyword, time} = params
                     if (user_name && user_name.length > 0) {
                         arr = arr.filter((item) => item.user_name.includes(user_name))
                     }
                     if (ip && ip.length > 0) {
                         arr = arr.filter((item) => item.ip.includes(ip))
                     }
-                    if (describe && describe.length > 0) {
-                        arr = arr.filter((item) => item.describe.includes(describe))
+                    if (keyword && keyword.length > 0) {
+                        arr = arr.filter((item) => item.describe.includes(keyword))
+                    }
+                    if (time && Array.isArray(time)) {
+                        arr = arr.filter((item) =>
+                            moment(item.time * 1000).isBetween(time[0].startOf("day"), time[1].endOf("day"))
+                        )
                     }
                 }
 
-                console.log("update---", arr)
                 setDataSource(arr)
-            } catch (error) {}
+                setPagination({...pagination, Page: 1})
+                setLoading(false)
+            } catch (error) {
+                setLoading(false)
+            }
         })
     })
 
@@ -72,8 +91,43 @@ export const LogManagement: React.FC<LogManagementProps> = (props) => {
         update()
     }, [])
 
+    const formatJson = (filterVal, jsonData) => {
+        return jsonData.map((v, index) =>
+            filterVal.map((j) => {
+                if (j === "time") {
+                    return formatTimestamp(v[j])
+                } else {
+                    return v[j]
+                }
+            })
+        )
+    }
+
     const getData = useMemoizedFn(() => {
-        return new Promise((resolve) => {})
+        return new Promise((resolve) => {
+            getRemoteValue(RecordOperationHistory).then((data) => {
+                if (!data) return
+                try {
+                    const arr: LogItemProps[] = JSON.parse(data)
+                    const header = ["账号", "IP", "操作", "时间"]
+                    const exportData = formatJson(["user_name", "ip", "describe", "time"], arr)
+                    const params = {
+                        header,
+                        exportData,
+                        response: {
+                            Pagination: {
+                                Page: 1
+                            },
+                            Data: arr,
+                            Total: arr.length
+                        }
+                    }
+                    resolve(params)
+                } catch (error) {
+                    failed("数据导出失败 " + `${error}`)
+                }
+            })
+        })
     })
 
     const columns = useMemo(() => {
@@ -98,8 +152,8 @@ export const LogManagement: React.FC<LogManagementProps> = (props) => {
         ]
     }, [])
 
-    const onFinish = useMemoizedFn(() => {
-        update()
+    const onFinish = useMemoizedFn((values: ParamsProps) => {
+        update(values)
     })
     return (
         <div className={styles["log-management"]}>
@@ -164,9 +218,9 @@ export const LogManagement: React.FC<LogManagementProps> = (props) => {
                     showTotal: (total) => <Tag>Total:{total}</Tag>,
                     pageSizeOptions: ["5", "10", "20"]
                 }}
-                onChange={(pagination, filters, sorter, extra) => {
-                    const {current, pageSize} = pagination
-                    console.log("翻页", current, pageSize)
+                onChange={(data, filters, sorter, extra) => {
+                    const {current = 1, pageSize = 10} = data
+                    setPagination({...pagination, Page: current, Limit: pageSize})
                 }}
             />
         </div>
@@ -204,20 +258,18 @@ export const onRecordOperation = async (item: RecordOperationProps) => {
         ip = await fetchPrivateDomain()
     }
     const newItem: LogItemProps = {...item, time: moment().unix(), ip}
-    console.log("useRecordOperation---", newItem)
-    getRemoteValue(RemoteGV.HttpSetting).then((data) => {
+    getRemoteValue(RecordOperationHistory).then((data) => {
         if (!data) {
-            console.log("chahce", newItem)
-
             setRemoteValue(RecordOperationHistory, JSON.stringify([newItem]))
         } else {
             try {
                 const arr: LogItemProps[] = JSON.parse(data)
                 const newArr: LogItemProps[] = [newItem, ...arr]
-                console.log("cahce1", newArr)
-
+                console.log("onRecordOperation", newArr)
                 setRemoteValue(RecordOperationHistory, JSON.stringify(newArr))
-            } catch (error) {}
+            } catch (error) {
+                // console.log("error",error);
+            }
         }
     })
 }
