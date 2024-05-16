@@ -1389,6 +1389,8 @@ export const apiHybridScan: (params: HybridScanControlAfterRequest, token: strin
                 .then(() => {
                     info(`启动成功,任务ID: ${token}`)
                     // send target / plugin
+                    console.log("批量执行启动---","grpc-HybridScan",executeParams);
+                    
                     ipcRenderer.invoke("HybridScan", executeParams, token).then(() => {
                         info("发送扫描目标与插件成功")
                     })
@@ -1501,9 +1503,11 @@ export const apiGetYakScriptById: (Id: string | number) => Promise<YakScript> = 
 /**本地获取插件组数据 */
 export const apiFetchQueryYakScriptGroupLocal: (All?: boolean, ExcludeType?: string[]) => Promise<GroupCount[]> = (All = true, ExcludeType = ['yak', 'codec']) => {
     return new Promise((resolve, reject) => {
+        console.log("本地获取插件组请求---","grpc-QueryYakScriptGroup",{All, ExcludeType});
         ipcRenderer
             .invoke("QueryYakScriptGroup", {All, ExcludeType})
             .then((res: QueryYakScriptGroupResponse) => {
+                console.log("本地获取插件组响应---",res);
                 resolve(res.Group)
             })
             .catch((e) => {
@@ -1566,9 +1570,12 @@ export const apiFetchGetYakScriptGroupLocal: (params: QueryYakScriptRequest) => 
 /**本地更新插件所在组&新增插件组 */
 export const apiFetchSaveYakScriptGroupLocal: (params: SaveYakScriptGroupRequest) => Promise<null> = (params) => {
     return new Promise((resolve, reject) => {
+        console.log("更新本地分组请求","grpc-SaveYakScriptGroup",params);
+        
         ipcRenderer
             .invoke("SaveYakScriptGroup", params)
             .then((res: null) => {
+                console.log("更新本地分组请求","此处响应无实际内容，为直接刷新本地管理分组列表");
                 resolve(null)
             })
             .catch((e) => {
@@ -1595,6 +1602,8 @@ export const apiFetchResetYakScriptGroup: (params: ResetYakScriptGroupRequest) =
 
 /** 线上获取插件组数据 */
 export const apiFetchQueryYakScriptGroupOnline: () => Promise<API.GroupResponse> = () => {
+    console.log("线上获取插件组请求---","接口-group","请求方式-get");
+    
     return new Promise((resolve, reject) => {
         try {
             NetWorkApi<any, API.GroupResponse>({
@@ -1602,6 +1611,7 @@ export const apiFetchQueryYakScriptGroupOnline: () => Promise<API.GroupResponse>
                 url: "group"
             })
                 .then((res) => {
+                    console.log("线上获取插件组响应---",res);
                     resolve(res)
                 })
                 .catch((err) => {
@@ -1700,6 +1710,7 @@ export const apiFetchSaveYakScriptGroupOnline: (params: API.GroupRequest) => Pro
     params
 ) => {
     return new Promise((resolve, reject) => {
+        console.log("更新线上分组请求","接口-group","请求方式-get",params);
         try {
             NetWorkApi<API.GroupRequest, API.ActionSucceeded>({
                 method: "post",
@@ -1707,6 +1718,7 @@ export const apiFetchSaveYakScriptGroupOnline: (params: API.GroupRequest) => Pro
                 data: params
             })
                 .then((res) => {
+                    console.log("更新线上分组响应","此处响应无实际内容，为直接刷新线上管理分组列表");
                     resolve(res)
                 })
                 .catch((err) => {

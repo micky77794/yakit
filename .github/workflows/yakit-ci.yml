@@ -88,7 +88,7 @@ jobs:
         run: |
           yarn add -D dmg-license && yarn electron-publish-se
       # 社区版
-      - run: yarn build-render
+      - run: yarn build-test-render
         if: ${{ startsWith(github.ref, 'refs/tags/v') || startsWith(github.ref, 'refs/heads/ci/community-') }}
         working-directory: ./
         name: "Build Community"
