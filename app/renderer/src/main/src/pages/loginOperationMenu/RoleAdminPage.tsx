@@ -374,13 +374,19 @@ const RoleAdminPage: React.FC<RoleAdminPageProps> = (props) => {
         },
         {
             title: "操作权限",
-            render: (text: string, record) => (
-                <div>
-                    {
-                        ["审核员"].includes(record.name)? <span style={{marginRight: 10}}>审核插件</span>:"-"
-                    }
-                </div>
-            )
+            render: (text: string, record) => {
+                if(["审核员"].includes(record.name)){
+                    return <div>
+                        <span style={{marginRight: 10}}>审核插件</span>
+                    </div>
+                }
+                if(["审计员"].includes(record.name)){
+                    return <div>
+                        <span style={{marginRight: 10}}>日志管理</span>
+                    </div>
+                }
+                return <div>-</div>    
+            }
         },
         {
             title: "创建时间",
@@ -390,7 +396,7 @@ const RoleAdminPage: React.FC<RoleAdminPageProps> = (props) => {
         {
             title: "操作",
             render: (i,record) => (
-                ["审核员"].includes(record.name)?<></>:
+                ["审核员","审计员"].includes(record.name)?<></>:
                 <Space>
                     <Button
                         size='small'

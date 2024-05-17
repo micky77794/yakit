@@ -237,7 +237,7 @@ export const FuncDomain: React.FC<FuncDomainProp> = React.memo((props) => {
                     {key: "account-admin", title: "用户管理"},
                     {key: "set-password", title: "修改密码"},
                     {key: "plugin-aduit", title: "插件管理"},
-                    {key:"log-management",title: "日志管理"},
+                    {key: "log-management",title: "日志管理"},
                     {key: "sign-out", title: "退出登录", render: () => LoginOutBox()}
                 ]
                 // 远程中时不显示发起远程 显示退出远程
@@ -261,11 +261,16 @@ export const FuncDomain: React.FC<FuncDomainProp> = React.memo((props) => {
                 {key: "close-dynamic-control", title: "退出远程"},
                 {key: "set-password", title: "修改密码"},
                 {key: "plugin-aduit", title: "插件管理"},
+                {key: "log-management",title: "日志管理"},
                 {key: "sign-out", title: "退出登录"}
             ]
             // 不为审核员时 移除插件管理
             if (userInfo.role !== "auditor") {
                 cacheMenu = cacheMenu.filter((item) => item.key !== "plugin-aduit")
+            }
+            // 不为审计员时 移除日志管理
+            if (userInfo.role !== "auditLog") {
+                cacheMenu = cacheMenu.filter((item) => item.key !== "log-management")
             }
             if (isEnpriTraceAgent()) {
                 cacheMenu = cacheMenu.filter((item) => item.key !== "upload-data")
