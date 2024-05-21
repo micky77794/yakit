@@ -4296,9 +4296,15 @@ export const OutlineThumbupIcon = (props: Partial<IconProps>) => {
 }
 
 const OutlineThumbupActive = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-        <path d="M1.59961 8.39961C1.59961 7.73687 2.13687 7.19961 2.79961 7.19961C3.46235 7.19961 3.99961 7.73687 3.99961 8.39961V13.1996C3.99961 13.8624 3.46235 14.3996 2.79961 14.3996C2.13687 14.3996 1.59961 13.8624 1.59961 13.1996V8.39961Z" fill="currentColor"/>
-        <path d="M4.79961 8.26628V12.6108C4.79961 13.2168 5.14201 13.7708 5.68407 14.0418L5.72394 14.0618C6.16828 14.2839 6.65824 14.3996 7.15503 14.3996H11.4879C12.2506 14.3996 12.9073 13.8613 13.0569 13.1134L14.0169 8.3134C14.2149 7.32333 13.4576 6.39961 12.4479 6.39961H9.59961V3.19961C9.59961 2.31595 8.88326 1.59961 7.99961 1.59961C7.55778 1.59961 7.19961 1.95778 7.19961 2.39961V2.93294C7.19961 3.62533 6.97504 4.29903 6.55961 4.85294L5.43961 6.34628C5.02418 6.90018 4.79961 7.57389 4.79961 8.26628Z" fill="currentColor"/>
+    <svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16' fill='none'>
+        <path
+            d='M1.59961 8.39961C1.59961 7.73687 2.13687 7.19961 2.79961 7.19961C3.46235 7.19961 3.99961 7.73687 3.99961 8.39961V13.1996C3.99961 13.8624 3.46235 14.3996 2.79961 14.3996C2.13687 14.3996 1.59961 13.8624 1.59961 13.1996V8.39961Z'
+            fill='currentColor'
+        />
+        <path
+            d='M4.79961 8.26628V12.6108C4.79961 13.2168 5.14201 13.7708 5.68407 14.0418L5.72394 14.0618C6.16828 14.2839 6.65824 14.3996 7.15503 14.3996H11.4879C12.2506 14.3996 12.9073 13.8613 13.0569 13.1134L14.0169 8.3134C14.2149 7.32333 13.4576 6.39961 12.4479 6.39961H9.59961V3.19961C9.59961 2.31595 8.88326 1.59961 7.99961 1.59961C7.55778 1.59961 7.19961 1.95778 7.19961 2.39961V2.93294C7.19961 3.62533 6.97504 4.29903 6.55961 4.85294L5.43961 6.34628C5.02418 6.90018 4.79961 7.57389 4.79961 8.26628Z'
+            fill='currentColor'
+        />
     </svg>
 )
 
@@ -4308,7 +4314,6 @@ const OutlineThumbupActive = () => (
 export const OutlineThumbupActiveIcon = (props: Partial<IconProps>) => {
     return <Icon component={OutlineThumbupActive} {...props} />
 }
-
 
 const OutlineTicket = () => (
     <svg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'>
@@ -4808,8 +4813,13 @@ export const OutlineBigviewIcon = (props: Partial<IconProps>) => {
 }
 
 const OutlineArrowBigUp = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-        <path d="M5.99998 14V6.66667H3.33331L7.99998 2L12.6666 6.66667H9.99998V14H5.99998Z" stroke='currentColor' strokeLinecap="round" strokeLinejoin="round"/>
+    <svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16' fill='none'>
+        <path
+            d='M5.99998 14V6.66667H3.33331L7.99998 2L12.6666 6.66667H9.99998V14H5.99998Z'
+            stroke='currentColor'
+            strokeLinecap='round'
+            strokeLinejoin='round'
+        />
     </svg>
 )
 /**
@@ -4907,7 +4917,7 @@ const OutlineEngine = () => (
     </svg>
 )
 /**
- * @description  Icon/Outline/Outline引擎
+ * @description  Icon/Outline/引擎
  */
 export const OutlineEngineIcon = (props: Partial<IconProps>) => {
     return <Icon component={OutlineEngine} {...props} />
@@ -5148,10 +5158,59 @@ const OutlineStore = () => (
         <path d='M14.25 6.75H9' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round' />
     </svg>
 )
-
 /**
  * @description  Icon/Outline/存储
  */
 export const OutlineStoreIcon = (props: Partial<IconProps>) => {
     return <Icon component={OutlineStore} {...props} />
+}
+
+const OutlineStethoscope = () => (
+    <svg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'>
+        <path
+            d='M5.56667 3.29222C5.56993 3.35015 5.59123 3.40557 5.62755 3.45065C5.66386 3.49573 5.71336 3.52819 5.76902 3.54342C5.82469 3.55865 5.88371 3.55589 5.93773 3.53553C5.99175 3.51517 6.03804 3.47824 6.07004 3.42997C6.10204 3.3817 6.11813 3.32452 6.11604 3.26654C6.11396 3.20856 6.09379 3.15271 6.0584 3.1069C6.023 3.06108 5.97418 3.02761 5.91883 3.01124C5.86349 2.99487 5.80442 2.99641 5.75 3.01566H4.83333C4.3471 3.01566 3.88079 3.20991 3.53697 3.55568C3.19315 3.90145 3 4.37041 3 4.8594V9.46877C3 10.9357 3.57946 12.3426 4.61091 13.3799C5.64236 14.4172 7.04131 15 8.5 15C9.95869 15 11.3576 14.4172 12.3891 13.3799C13.4205 12.3426 14 10.9357 14 9.46877V4.8594C14 4.37041 13.8068 3.90145 13.463 3.55568C13.1192 3.20991 12.6529 3.01566 12.1667 3.01566H11.25C11.2319 3.03382 11.2176 3.05538 11.2078 3.0791C11.1981 3.10283 11.193 3.12826 11.193 3.15394C11.193 3.17962 11.1981 3.20505 11.2078 3.22878C11.2176 3.2525 11.2319 3.27406 11.25 3.29222C11.2681 3.31038 11.2895 3.32479 11.3131 3.33461C11.3367 3.34444 11.362 3.3495 11.3875 3.3495C11.413 3.3495 11.4383 3.34444 11.4619 3.33461C11.4855 3.32479 11.5069 3.31038 11.525 3.29222'
+            stroke='currentColor'
+            strokeWidth='2'
+            strokeLinecap='round'
+            strokeLinejoin='round'
+        />
+        <path
+            d='M8 15.7V15.6C8 17.0322 8.57946 18.4057 9.61091 19.4184C10.6424 20.4311 12.0413 21 13.5 21C14.9587 21 16.3576 20.4311 17.3891 19.4184C18.4205 18.4057 19 17.0322 19 15.6V12'
+            stroke='currentColor'
+            strokeWidth='2'
+            strokeLinecap='round'
+            strokeLinejoin='round'
+        />
+        <path
+            d='M19 12C20.1046 12 21 11.1046 21 10C21 8.89543 20.1046 8 19 8C17.8954 8 17 8.89543 17 10C17 11.1046 17.8954 12 19 12Z'
+            stroke='currentColor'
+            strokeWidth='2'
+            strokeLinecap='round'
+            strokeLinejoin='round'
+        />
+    </svg>
+)
+/**
+ * @description  Icon/Outline/stethoscope
+ */
+export const OutlineStethoscopeIcon = (props: Partial<IconProps>) => {
+    return <Icon component={OutlineStethoscope} {...props} />
+}
+
+const OutlineDeprecated = () => (
+    <svg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'>
+        <path
+            d='M23 12H1M20.1818 12C20.1818 16.4183 16.5187 20 12 20C7.48131 20 3.81818 16.4183 3.81818 12C3.81818 7.58172 7.48131 4 12 4C16.5187 4 20.1818 7.58172 20.1818 12Z'
+            stroke='currentColor'
+            strokeWidth='2'
+            strokeLinecap='round'
+            strokeLinejoin='round'
+        />
+    </svg>
+)
+/**
+ * @description  Icon/Outline/弃用
+ */
+export const OutlineDeprecatedIcon = (props: Partial<IconProps>) => {
+    return <Icon component={OutlineDeprecated} {...props} />
 }
