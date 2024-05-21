@@ -361,7 +361,7 @@ export const YakChatCS: React.FC<YakChatCSProps> = (props) => {
 
     const onFuzzerRunChatcsAI = useMemoizedFn((value)=>{
         try {
-            const val: {text?: string; scriptName: string} = JSON.parse(value)
+            const val: {text?: string; scriptName: string,isAiPlugin:boolean} = JSON.parse(value)
             setVisible(true)
             setPluginAIParams(val)
             setChatcsType("PluginAI")
@@ -1132,7 +1132,7 @@ export const YakChatCS: React.FC<YakChatCSProps> = (props) => {
                                 },
                                 {
                                     value: "PluginAI",
-                                    label: "AI插件"
+                                    label: "插件输出"
                                 }
                             ]}
                         />
@@ -1164,7 +1164,7 @@ export const YakChatCS: React.FC<YakChatCSProps> = (props) => {
                             )}
                             {chatcsType === "PluginAI" && (
                                 <>
-                                    <Tooltip overlayClassName={styles["tooltip-wrapper"]} title={"清空AI插件"}>
+                                    <Tooltip overlayClassName={styles["tooltip-wrapper"]} title={"清空插件输出"}>
                                         <div
                                             className={classNames(styles["small-btn"], styles["btn-style"])}
                                             onClick={() => {setPluginAIList([])}}
@@ -1514,9 +1514,10 @@ interface ChatUserContentProps {
     info: ChatMeInfoProps
     onDel: () => any
     classNameContent?: string
+    scriptName?: string
 }
 const ChatUserContent: React.FC<ChatUserContentProps> = memo((props) => {
-    const {time, info, onDel,classNameContent} = props
+    const {time, info, onDel,classNameContent,scriptName} = props
 
     const {userInfo} = useStore()
     const showImg = useMemo(() => {
@@ -1535,7 +1536,9 @@ const ChatUserContent: React.FC<ChatUserContentProps> = memo((props) => {
                         <div className={styles['user-show']}><UnLoginSvgIcon /></div>
                     }
                     
-                    {time}
+                    <span>{time}</span>
+
+                    {scriptName&&<span className={styles['']}>{scriptName}</span>}
                 </div>
                 <div className={styles["header-right"]}>
                     <div className={styles["right-btn"]} onClick={onDel}>
@@ -2873,6 +2876,7 @@ export const YakChatLoading: React.FC<YakChatLoadingProps> = (props) => {
 }
 
 interface PluginAiItem {
+    scriptName?: string
     token: string
     isMe: boolean
     time: string
@@ -2986,7 +2990,7 @@ export const PluginAIComponent: React.FC<PluginAIComponentProps> = (props) => {
     useEffect(()=>{
         if(params){
             const {text,scriptName} = params
-            AddAIList({info:{content:text},isMe:true,time: formatDate(+new Date()),token: randomString(10)})
+            AddAIList({scriptName,info:{content:text},isMe:true,time: formatDate(+new Date()),token: randomString(10)})
             scrollToPluginAIBottom()
             const token = randomString(10)
             setLoading(true)
@@ -3026,10 +3030,10 @@ export const PluginAIComponent: React.FC<PluginAIComponentProps> = (props) => {
             {pluginAIList.length>0 ? (
                 <div style={{overflow:"auto",height:"100%"}} ref={pluginAIListRef}>
                     {pluginAIList.map((item) => {
-                        const {token, isMe, time, info} = item
+                        const {token, isMe, time, info, scriptName} = item
                         if (isMe) {
                             return (
-                                <ChatUserContent key={token} classNameContent={styles["opt-content-auto"]} time={time} info={info} onDel={() => onDelContent(item)} />
+                                <ChatUserContent key={token} classNameContent={styles["opt-content-auto"]} scriptName={scriptName} time={time} info={info} onDel={() => onDelContent(item)} />
                             )
                         } else {
                             return (

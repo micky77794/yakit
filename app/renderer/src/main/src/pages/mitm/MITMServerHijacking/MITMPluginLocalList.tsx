@@ -265,6 +265,8 @@ export const MITMPluginLocalList: React.FC<MITMPluginLocalListProps> = React.mem
 export interface YakitGetOnlinePluginProps {
     /**@name 'online'默认首页 mine 个人, recycle 回收站 check 审核页面" */
     listType?: "online" | "mine" | "recycle" | "check"
+    // 限制下载的类型
+    pluginType?: string[]
     visible: boolean
     setVisible: (b: boolean) => void
 }
@@ -273,7 +275,7 @@ export interface YakitGetOnlinePluginProps {
  * @param listType 'online'默认首页 mine 个人, recycle 回收站 check 审核页面"
  */
 export const YakitGetOnlinePlugin: React.FC<YakitGetOnlinePluginProps> = React.memo((props) => {
-    const {listType = "online", visible, setVisible} = props
+    const {listType = "online", pluginType, visible, setVisible} = props
     const taskToken = useMemo(() => randomString(40), [])
     const [percent, setPercent] = useState<number>(0)
     useEffect(() => {
@@ -305,7 +307,10 @@ export const YakitGetOnlinePlugin: React.FC<YakitGetOnlinePluginProps> = React.m
     }, [taskToken])
     useEffect(() => {
         if (visible) {
-            const addParams: DownloadOnlinePluginsRequest = {ListType: listType === "online" ? "" : listType}
+            const addParams: DownloadOnlinePluginsRequest = {
+                ListType: listType === "online" ? "" : listType,
+                PluginType: pluginType? pluginType : []
+            }
             ipcRenderer
                 .invoke("DownloadOnlinePlugins", addParams, taskToken)
                 .then(() => {})
