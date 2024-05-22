@@ -2,7 +2,7 @@ import React, {ReactNode, Ref, useEffect, useMemo, useRef, useState} from "react
 import {Button, Divider, Empty, Form, Input, Select, Space, Tooltip, Badge} from "antd"
 import {YakQueryHTTPFlowRequest} from "../../utils/yakQueryHTTPFlow"
 import {showDrawer} from "../../utils/showModal"
-import {PaginationSchema} from "../../pages/invoker/schema"
+import {PaginationSchema, YakScript} from "../../pages/invoker/schema"
 import {InputItem, ManyMultiSelectForString, SwitchItem} from "../../utils/inputUtil"
 import {HTTPFlowDetail} from "../HTTPFlowDetail"
 import {info, yakitNotify, yakitFailed} from "../../utils/notification"
@@ -77,6 +77,8 @@ import {YakitEditorKeyCode} from "../yakitUI/YakitEditor/YakitEditorType"
 import {YakitSystem} from "@/yakitGVDefine"
 import {convertKeyboard} from "../yakitUI/YakitEditor/editorUtils"
 import {serverPushStatus} from "@/utils/duplex/duplex"
+import { PluginGV } from "@/pages/plugins/builtInData"
+import { queryYakScriptList } from "@/pages/yakitStore/network"
 
 const {ipcRenderer} = window.require("electron")
 
@@ -879,8 +881,24 @@ export const HTTPFlowTable = React.memo<HTTPFlowTableProp>((props) => {
     useEffect(() => {
         if (inViewport) {
             getHTTPFlowsFieldGroup(true)
+            searchCodecSingleHistoryPlugin()
+            searchCodecMultipleHistoryPlugin()
         }
     }, [inViewport])
+
+    const onRefreshPluginCodecMenu = useMemoizedFn(()=>{
+        if(inViewport){
+            searchCodecSingleHistoryPlugin()
+            searchCodecMultipleHistoryPlugin()
+        }
+    })
+
+    useEffect(() => {
+        emiter.on("onRefPluginCodecMenu", onRefreshPluginCodecMenu)
+        return () => {
+            emiter.off("onRefPluginCodecMenu", onRefreshPluginCodecMenu)
+        }
+    }, [])
 
     const getShieldList = useMemoizedFn(() => {
         getRemoteValue(HTTP_FLOW_TABLE_SHIELD_DATA)
@@ -2324,6 +2342,82 @@ export const HTTPFlowTable = React.memo<HTTPFlowTableProp>((props) => {
         })
     }, [])
 
+    // 插件扩展(单选)
+    const [codecSingleHistoryPlugin, setCodecSingleHistoryPlugin] = useState<{key: string,label: string}[]>([])
+    const searchCodecSingleHistoryPlugin = useMemoizedFn(():any=>{
+            queryYakScriptList(
+            "codec",
+            (i: YakScript[], total) => {
+                console.log("history插件扩展(单)---",i,total);
+                
+                if (!total || total === 0) {
+                    return
+                }
+                setCodecSingleHistoryPlugin(
+                    i.map((script) => {
+                        return {
+                            key: script.ScriptName,
+                            label: script.ScriptName,
+                        }
+                    })
+                )
+            },
+            undefined,
+            10,
+            undefined,
+            undefined,
+            undefined,
+            undefined,
+            [PluginGV.PluginCodecSingleHistorySwitch]
+        )
+        
+    })
+
+    // 插件扩展(多选)
+    const [codecMultipleHistoryPlugin, setCodecMultipleHistoryPlugin] = useState<{key: string,label: string}[]>([])
+    const searchCodecMultipleHistoryPlugin = useMemoizedFn(():any=>{
+            queryYakScriptList(
+            "codec",
+            (i: YakScript[], total) => {
+                console.log("history插件扩展(多)---",i,total);
+                
+                if (!total || total === 0) {
+                    return
+                }
+                setCodecMultipleHistoryPlugin(
+                    i.map((script) => {
+                        return {
+                            key: script.ScriptName,
+                            label: script.ScriptName,
+                        }
+                    })
+                )
+            },
+            undefined,
+            10,
+            undefined,
+            undefined,
+            undefined,
+            undefined,
+            [PluginGV.PluginCodecMultipleHistorySwitch]
+        )
+        
+    })
+
+    const getCodecHistoryPlugin = useMemoizedFn(()=>{
+        if(selectedRows.length > 1){
+            return codecMultipleHistoryPlugin.length>0?codecMultipleHistoryPlugin:[{
+                key:"Get*plug-in",
+                label:"获取插件",
+            }]
+        }else{
+            return codecSingleHistoryPlugin.length>0?codecSingleHistoryPlugin:[{
+                key:"Get*plug-in",
+                label:"获取插件",
+            }]
+        }
+    })
+
     const menuData = [
         {
             key: "发送到 Web Fuzzer",
@@ -2380,6 +2474,16 @@ export const HTTPFlowTable = React.memo<HTTPFlowTableProp>((props) => {
                 key: ele.title,
                 label: ele.title
             }))
+        },
+        {
+            key: "插件扩展",
+            label: "插件扩展",
+            default: true,
+            webSocket: false,
+            toWebFuzzer: true,
+            onClickSingle: () => {},
+            onClickBatch: () => {},
+            children: getCodecHistoryPlugin()
         },
         {
             key: "复制 URL",
@@ -2642,6 +2746,19 @@ export const HTTPFlowTable = React.memo<HTTPFlowTableProp>((props) => {
                     }),
                 // openKeys:['复制为 Yak PoC 模版',],
                 onClick: ({key, keyPath}) => {
+                    console.log("key, keyPath",key, keyPath);
+                    
+                    if(keyPath.includes("插件扩展")){
+                        // 没有插件 下载codec插件
+                        if(key === "Get*plug-in"){
+                            emiter.emit("onOpenFuzzerModal",JSON.stringify({scriptName:key,isAiPlugin:"isGetPlugin"}))
+                            return
+                        }
+                        if(isAllSelect){
+                            yakitNotify("warning", "该批量操作不支持全选")
+                            return
+                        }
+                    }
                     if (keyPath.includes("数据包扫描")) {
                         const scanItem = packetScanDefaultValue.find((e) => e.Verbose === key)
                         if (!scanItem) return
@@ -2924,6 +3041,17 @@ export const HTTPFlowTable = React.memo<HTTPFlowTableProp>((props) => {
                                                 }
                                             })}
                                         onClick={({key, keyPath}) => {
+                                            if(keyPath.includes("插件扩展")){
+                                                // 没有插件 下载codec插件
+                                                if(key === "Get*plug-in"){
+                                                    emiter.emit("onOpenFuzzerModal",JSON.stringify({scriptName:key,isAiPlugin:"isGetPlugin"}))
+                                                    return
+                                                }
+                                                if(isAllSelect){
+                                                    yakitNotify("warning", "该批量操作不支持全选")
+                                                    return
+                                                }
+                                            }
                                             if (keyPath.includes("数据包扫描")) {
                                                 if (isAllSelect) {
                                                     yakitNotify("warning", "该批量操作不支持全选")

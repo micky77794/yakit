@@ -1544,6 +1544,10 @@ const UILayout: React.FC<UILayoutProp> = (props) => {
                 setVisible={(v) => {
                     setCoedcPluginShow(v)
                 }}
+                onFinish={()=>{
+                    // 此处通知刷新各类基于codec插件菜单
+                    emiter.emit("onRefPluginCodecMenu")
+                }}
             />
         </div>
     )

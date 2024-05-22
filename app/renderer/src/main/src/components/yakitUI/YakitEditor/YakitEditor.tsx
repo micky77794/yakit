@@ -277,6 +277,20 @@ export const YakitEditor: React.FC<YakitEditorProps> = React.memo((props) => {
         }
     }, [inViewport])
 
+    const onRefreshPluginCodecMenu = useMemoizedFn(()=>{
+        if(inViewport){
+            searchCodecCustomHTTPMutatePlugin()
+            searchCodecCustomContextMenuPlugin()
+        }
+    })
+
+    useEffect(() => {
+        emiter.on("onRefPluginCodecMenu", onRefreshPluginCodecMenu)
+        return () => {
+            emiter.off("onRefPluginCodecMenu", onRefreshPluginCodecMenu)
+        }
+    }, [])
+
     // 菜单数组去重
     const menuReduce = useMemoizedFn((array: any[])=>{
         let newArr:any[] = []
