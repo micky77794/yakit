@@ -14,6 +14,7 @@ import { YakitSpin } from "../YakitSpin/YakitSpin"
 import { showYakitModal } from "../YakitModal/YakitModalConfirm"
 import { YakitRoute } from "@/routes/newRoute"
 import emiter from "@/utils/eventBus/eventBus"
+import { IconSolidAIIcon, IconSolidAIWhiteIcon } from "@/assets/newIcon"
 
 const { ipcRenderer } = window.require("electron")
 
@@ -248,7 +249,11 @@ export const extraMenuLists: OtherMenuListProps = {
         menu: [
             {
                 key: "aiplugin",
-                label: "AI插件",
+                label: <>
+                    <IconSolidAIIcon className={"ai-plugin-menu-icon-default"}/>
+                    <IconSolidAIWhiteIcon className={"ai-plugin-menu-icon-hover"}/>
+                    AI插件
+                </>,
                 children: [],
             }
         ],

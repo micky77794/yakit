@@ -967,7 +967,7 @@ const UILayout: React.FC<UILayoutProp> = (props) => {
     // 判断打开 ChatCS-AI插件执行/全局网络配置第三方应用框
     const onFuzzerModal = useMemoizedFn((value) => {
         const val: {text?: string; scriptName: string; isAiPlugin:any} = JSON.parse(value)
-        if(val.isAiPlugin === "isGetPlugin"){
+        if(val.isAiPlugin === "isGetPlugin" || val.isAiPlugin === "aiplugin-Get*plug-in"){
             setCoedcPluginShow(true)
             return
         }

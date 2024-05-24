@@ -881,8 +881,6 @@ export const YakitEditor: React.FC<YakitEditorProps> = React.memo((props) => {
     }, [showBreak])
 
     const showContextMenu = useMemoizedFn(() => {
-        console.log("showContextMenu---",rightContextMenu.current);
-        
         showByRightContext(
             <EditorMenu
                 size='rightMenu'
@@ -1138,6 +1136,20 @@ export const YakitEditor: React.FC<YakitEditorProps> = React.memo((props) => {
                                           editor.trigger("keyboard", "type", {text})
                                           closeFizzRangeWidget()
                                       }
+                                  }}
+                                  toOpenAiChat={(scriptName: string)=>{
+                                    if(scriptName === "aiplugin-Get*plug-in"){
+                                        emiter.emit("onOpenFuzzerModal",JSON.stringify({scriptName,isAiPlugin:"isGetPlugin"}))
+                                        closeFizzRangeWidget()
+                                        return
+                                    }
+                                    
+                                    if (editor) {
+                                        const selectedText =
+                                              editor.getModel()?.getValueInRange(editor.getSelection() as any) || ""
+                                        emiter.emit("onOpenFuzzerModal",JSON.stringify({text:selectedText,scriptName,isAiPlugin:true}))
+                                        closeFizzRangeWidget()
+                                    }
                                   }}
                                   rangeValue={
                                       (editor && editor.getModel()?.getValueInRange(editor.getSelection() as any)) || ""
