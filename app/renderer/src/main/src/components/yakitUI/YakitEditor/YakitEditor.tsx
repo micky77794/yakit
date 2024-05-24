@@ -241,7 +241,7 @@ export const YakitEditor: React.FC<YakitEditorProps> = React.memo((props) => {
         queryYakScriptList(
             "codec",
             (i: YakScript[], total) => {
-                console.log("插件扩展---",i,total);
+                console.log("插件扩展更改前---",i,total);
                 
                 if (!total || total === 0) {
                     return
@@ -271,14 +271,14 @@ export const YakitEditor: React.FC<YakitEditorProps> = React.memo((props) => {
     const [inViewport] = useInViewport(ref);
 
     useEffect(() => {
-        if(inViewport){
+        if(inViewport && menuType.length>0){
             searchCodecCustomHTTPMutatePlugin()
             searchCodecCustomContextMenuPlugin()
         }
     }, [inViewport])
 
     const onRefreshPluginCodecMenu = useMemoizedFn(()=>{
-        if(inViewport){
+        if(inViewport && menuType.length>0){
             searchCodecCustomHTTPMutatePlugin()
             searchCodecCustomContextMenuPlugin()
         }
@@ -324,6 +324,8 @@ export const YakitEditor: React.FC<YakitEditorProps> = React.memo((props) => {
             )])
             // 自定义HTTP数据包变形
             ;(extraMenuLists["http"].menu[0] as EditorMenuItemProps).children = newHttpChildren
+            console.log("插件扩展更改后---",contextMenuPlugin);
+            
             // 插件扩展
             const newCustomContextMenu = contextMenuPlugin.map((item) => {
                 return {
@@ -631,7 +633,6 @@ export const YakitEditor: React.FC<YakitEditorProps> = React.memo((props) => {
                 ])
             }
             if (menuType.length > 0) {
-                // console.log("赋于菜单",extraMenuLists);
                 const types = Array.from(new Set(menuType))
                 for (let key of types)
                     rightContextMenu.current = rightContextMenu.current.concat([
@@ -661,7 +662,7 @@ export const YakitEditor: React.FC<YakitEditorProps> = React.memo((props) => {
             }
 
             rightContextMenu.current = contextMenuKeybindingHandle("", rightContextMenu.current)
-
+            
             if (!forceRenderMenu) isInitRef.current = true
         })
     }, [forceRenderMenu, menuType, contextMenu,contextMenuPlugin,customHTTPMutatePlugin])

@@ -48,7 +48,7 @@ import {v4 as uuidv4} from "uuid"
 const {TabPane} = PluginTabs
 
 export const PluginExecuteResult: React.FC<PluginExecuteResultProps> = React.memo((props) => {
-    const {streamInfo, runtimeId, loading, defaultActiveKey, pluginExecuteResultWrapper = ""} = props
+    const {streamInfo, runtimeId, loading, defaultActiveKey, pluginExecuteResultWrapper = "",PluginTabsRightNode} = props
 
     const renderTabContent = useMemoizedFn((ele: HoldGRPCStreamProps.InfoTab) => {
         switch (ele.type) {
@@ -113,7 +113,7 @@ export const PluginExecuteResult: React.FC<PluginExecuteResultProps> = React.mem
                 </div>
             )}
             {showTabs.length > 0 && (
-                <PluginTabs defaultActiveKey={defaultActiveKey}>
+                <PluginTabs defaultActiveKey={defaultActiveKey} tabBarExtraContent={{right:PluginTabsRightNode}}>
                     {showTabs.map((ele) => (
                         <TabPane
                             tab={tabBarRender(ele, streamInfo.riskState.length)}

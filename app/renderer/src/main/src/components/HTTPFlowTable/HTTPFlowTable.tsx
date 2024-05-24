@@ -2355,9 +2355,11 @@ export const HTTPFlowTable = React.memo<HTTPFlowTableProp>((props) => {
                 }
                 setCodecSingleHistoryPlugin(
                     i.map((script) => {
+                        const isAiPlugin:boolean = script.Tags.includes("AI工具")
                         return {
                             key: script.ScriptName,
                             label: script.ScriptName,
+                            isAiPlugin
                         }
                     })
                 )
@@ -2386,9 +2388,11 @@ export const HTTPFlowTable = React.memo<HTTPFlowTableProp>((props) => {
                 }
                 setCodecMultipleHistoryPlugin(
                     i.map((script) => {
+                        const isAiPlugin:boolean = script.Tags.includes("AI工具")
                         return {
                             key: script.ScriptName,
                             label: script.ScriptName,
+                            isAiPlugin
                         }
                     })
                 )
@@ -2726,39 +2730,62 @@ export const HTTPFlowTable = React.memo<HTTPFlowTableProp>((props) => {
         }
         return menus
     })
+
+    const getRowContextMenu = useMemoizedFn((rowData: HTTPFlow)=>{
+        return contextMenuKeybindingHandle(menuData)
+        .filter((item) =>
+            rowData.IsWebsocket ? item.webSocket : toWebFuzzer ? item.toWebFuzzer : item.default
+        )
+        .map((ele) => {
+            return {
+                label: ele.label,
+                key: ele.key,
+                children: ele.children || []
+            }
+        })
+    })
+
     const onRowContextMenu = (rowData: HTTPFlow, _, event: React.MouseEvent) => {
         if (rowData) {
             setSelected(rowData)
         }
+        const rowContextmenu = getRowContextMenu(rowData)
+        
         showByRightContext(
             {
                 width: 180,
-                data: contextMenuKeybindingHandle(menuData)
-                    .filter((item) =>
-                        rowData.IsWebsocket ? item.webSocket : toWebFuzzer ? item.toWebFuzzer : item.default
-                    )
-                    .map((ele) => {
-                        return {
-                            label: ele.label,
-                            key: ele.key,
-                            children: ele.children || []
-                        }
-                    }),
+                data: rowContextmenu,
                 // openKeys:['复制为 Yak PoC 模版',],
                 onClick: ({key, keyPath}) => {
-                    console.log("key, keyPath",key, keyPath);
-                    
-                    if(keyPath.includes("插件扩展")){
-                        // 没有插件 下载codec插件
-                        if(key === "Get*plug-in"){
-                            emiter.emit("onOpenFuzzerModal",JSON.stringify({scriptName:key,isAiPlugin:"isGetPlugin"}))
-                            return
-                        }
-                        if(isAllSelect){
-                            yakitNotify("warning", "该批量操作不支持全选")
+                    if(keyPath.length === 2){
+                        const menuName = keyPath[1]
+                        const menuItemName = keyPath[0]
+                        if(menuName === "插件扩展"){
+                            // 没有插件 下载codec插件
+                            if(key === "Get*plug-in"){
+                                emiter.emit("onOpenFuzzerModal",JSON.stringify({scriptName:key,isAiPlugin:"isGetPlugin"}))
+                                return
+                            }
+                            if(isAllSelect){
+                                yakitNotify("warning", "该批量操作不支持全选")
+                                return
+                            }
+                            try {
+                                rowContextmenu.forEach((item)=>{
+                                    if(item.key === menuName && Array.isArray(item.children)){
+                                        item.children.forEach((itemIn)=>{
+                                            if(itemIn.key === menuItemName){
+                                                emiter.emit("onOpenFuzzerModal",JSON.stringify({text:rowData.Id,scriptName:menuItemName,isAiPlugin:itemIn?.isAiPlugin}))
+                                            }
+                                        })
+
+                                    }
+                                }) 
+                            } catch (error) {}
                             return
                         }
                     }
+                    
                     if (keyPath.includes("数据包扫描")) {
                         const scanItem = packetScanDefaultValue.find((e) => e.Verbose === key)
                         if (!scanItem) return
@@ -3003,6 +3030,20 @@ export const HTTPFlowTable = React.memo<HTTPFlowTableProp>((props) => {
         )
     })
 
+    const getBatchContextMenu = useMemoizedFn(()=>{
+        return menuData
+        .filter((f) =>
+            toWebFuzzer ? f.onClickBatch && f.toWebFuzzer : f.onClickBatch
+        )
+        .map((m) => {
+            return {
+                key: m.key,
+                label: m.label,
+                children: m.children || []
+            }
+        })
+    })
+
     const batchActions = useMemoizedFn(() => {
         return (
             <>
@@ -3026,32 +3067,38 @@ export const HTTPFlowTable = React.memo<HTTPFlowTableProp>((props) => {
                                     <YakitMenu
                                         width={150}
                                         selectedKeys={[]}
-                                        data={menuData
-                                            .filter((f) =>
-                                                toWebFuzzer ? f.onClickBatch && f.toWebFuzzer : f.onClickBatch
-                                            )
-                                            .map((m) => {
-                                                return {
-                                                    key: m.key,
-                                                    label: m.label,
-                                                    children: m.children?.map((ele) => ({
-                                                        key: ele.key,
-                                                        label: ele.label
-                                                    }))
-                                                }
-                                            })}
+                                        data={getBatchContextMenu()}
                                         onClick={({key, keyPath}) => {
-                                            if(keyPath.includes("插件扩展")){
-                                                // 没有插件 下载codec插件
-                                                if(key === "Get*plug-in"){
-                                                    emiter.emit("onOpenFuzzerModal",JSON.stringify({scriptName:key,isAiPlugin:"isGetPlugin"}))
-                                                    return
-                                                }
-                                                if(isAllSelect){
-                                                    yakitNotify("warning", "该批量操作不支持全选")
+                                            const batchContextMenu = getBatchContextMenu()
+                                            if(keyPath.length === 2){
+                                                const menuName = keyPath[1]
+                                                const menuItemName = keyPath[0]
+                                                if(menuName === "插件扩展"){
+                                                    // 没有插件 下载codec插件
+                                                    if(key === "Get*plug-in"){
+                                                        emiter.emit("onOpenFuzzerModal",JSON.stringify({scriptName:key,isAiPlugin:"isGetPlugin"}))
+                                                        return
+                                                    }
+                                                    if(isAllSelect){
+                                                        yakitNotify("warning", "该批量操作不支持全选")
+                                                        return
+                                                    }
+                                                    try {
+                                                        batchContextMenu.forEach((item)=>{
+                                                            if(item.key === menuName && Array.isArray(item.children)){
+                                                                item.children.forEach((itemIn)=>{
+                                                                    if(itemIn.key === menuItemName){
+                                                                        emiter.emit("onOpenFuzzerModal",JSON.stringify({text:selectedRowKeys,scriptName:menuItemName,isAiPlugin:itemIn?.isAiPlugin}))
+                                                                    }
+                                                                })
+                        
+                                                            }
+                                                        }) 
+                                                    } catch (error) {}
                                                     return
                                                 }
                                             }
+
                                             if (keyPath.includes("数据包扫描")) {
                                                 if (isAllSelect) {
                                                     yakitNotify("warning", "该批量操作不支持全选")
