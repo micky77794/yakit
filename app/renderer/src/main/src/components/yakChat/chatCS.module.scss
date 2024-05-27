@@ -1497,13 +1497,16 @@
     height: 100%;
     width: 100%;
     overflow: hidden;
-    display: flex;
-    flex-direction: column;
     .ai-box{
-        flex: 2;
+        height: 60%;
+        display: flex;
+        flex-direction: column;
+        .content-opt-wrapper{
+            flex: 1;
+            overflow: auto;
+        }
     }
     .result-box{
-        flex: 1;
         .plugin-execute-result-wrapper{
             height: 100%;
             padding-top: 2px;

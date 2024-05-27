@@ -69,8 +69,9 @@ import {usePageInfo} from "@/store/pageInfo"
 import {shallow} from "zustand/shallow"
 import {YakitRoute} from "@/routes/newRoute"
 import {HighLightText} from "@/components/HTTPFlowDetail"
+import { useStore } from "@/store/editorState"
 
-interface CodecTypeProps {
+export interface CodecTypeProps {
     key?: string
     verbose: string
     subTypes?: CodecTypeProps[]
@@ -79,7 +80,7 @@ interface CodecTypeProps {
     isYakScript?: boolean
 }
 
-interface contextMenuProps{
+export interface contextMenuProps{
     key: string
     value: string
     isAiPlugin: boolean
@@ -207,7 +208,7 @@ export const YakitEditor: React.FC<YakitEditorProps> = React.memo((props) => {
     }, [showLineBreaks])
 
     // 自定义HTTP数据包变形处理
-    const [customHTTPMutatePlugin, setCustomHTTPMutatePlugin] = useState<CodecTypeProps[]>([])
+    const {customHTTPMutatePlugin, contextMenuPlugin,setCustomHTTPMutatePlugin,setContextMenuPlugin} = useStore()
     const searchCodecCustomHTTPMutatePlugin = useMemoizedFn(() => {
         queryYakScriptList(
             "codec",
@@ -236,13 +237,10 @@ export const YakitEditor: React.FC<YakitEditorProps> = React.memo((props) => {
     })
 
     // 插件扩展
-    const [contextMenuPlugin, setContextMenuPlugin] = useState<contextMenuProps[]>([])
     const searchCodecCustomContextMenuPlugin = useMemoizedFn(() => {
         queryYakScriptList(
             "codec",
             (i: YakScript[], total) => {
-                console.log("插件扩展更改前---",i,total);
-                
                 if (!total || total === 0) {
                     return
                 }
@@ -324,7 +322,6 @@ export const YakitEditor: React.FC<YakitEditorProps> = React.memo((props) => {
             )])
             // 自定义HTTP数据包变形
             ;(extraMenuLists["http"].menu[0] as EditorMenuItemProps).children = newHttpChildren
-            console.log("插件扩展更改后---",contextMenuPlugin);
             
             // 插件扩展
             const newCustomContextMenu = contextMenuPlugin.map((item) => {

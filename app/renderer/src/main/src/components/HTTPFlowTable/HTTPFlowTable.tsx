@@ -2348,8 +2348,6 @@ export const HTTPFlowTable = React.memo<HTTPFlowTableProp>((props) => {
             queryYakScriptList(
             "codec",
             (i: YakScript[], total) => {
-                console.log("history插件扩展(单)---",i,total);
-                
                 if (!total || total === 0) {
                     return
                 }
@@ -2381,8 +2379,6 @@ export const HTTPFlowTable = React.memo<HTTPFlowTableProp>((props) => {
             queryYakScriptList(
             "codec",
             (i: YakScript[], total) => {
-                console.log("history插件扩展(多)---",i,total);
-                
                 if (!total || total === 0) {
                     return
                 }
@@ -2749,14 +2745,25 @@ export const HTTPFlowTable = React.memo<HTTPFlowTableProp>((props) => {
         if (rowData) {
             setSelected(rowData)
         }
-        const rowContextmenu = getRowContextMenu(rowData)
-        
+        let rowContextmenu:any[] = []
+        // 当存在history勾选时，替换为批量菜单
+        if(selectedRowKeys.length > 0){
+            rowContextmenu = getBatchContextMenu()
+        }
+        else{
+            rowContextmenu = getRowContextMenu(rowData)
+        }
+
         showByRightContext(
             {
                 width: 180,
                 data: rowContextmenu,
                 // openKeys:['复制为 Yak PoC 模版',],
                 onClick: ({key, keyPath}) => {
+                    if(selectedRowKeys.length > 0){
+                        onMultipleClick(key, keyPath)
+                        return
+                    }
                     if(keyPath.length === 2){
                         const menuName = keyPath[1]
                         const menuItemName = keyPath[0]
@@ -3044,6 +3051,150 @@ export const HTTPFlowTable = React.memo<HTTPFlowTableProp>((props) => {
         })
     })
 
+    const onMultipleClick = useMemoizedFn((key:string, keyPath:string[])=>{
+        const batchContextMenu = getBatchContextMenu()
+        if(keyPath.length === 2){
+            const menuName = keyPath[1]
+            const menuItemName = keyPath[0]
+            if(menuName === "插件扩展"){
+                // 没有插件 下载codec插件
+                if(key === "Get*plug-in"){
+                    emiter.emit("onOpenFuzzerModal",JSON.stringify({scriptName:key,isAiPlugin:"isGetPlugin"}))
+                    return
+                }
+                if(isAllSelect){
+                    yakitNotify("warning", "该批量操作不支持全选")
+                    return
+                }
+                try {
+                    batchContextMenu.forEach((item)=>{
+                        if(item.key === menuName && Array.isArray(item.children)){
+                            item.children.forEach((itemIn)=>{
+                                if(itemIn.key === menuItemName){
+                                    emiter.emit("onOpenFuzzerModal",JSON.stringify({text:selectedRowKeys,scriptName:menuItemName,isAiPlugin:itemIn?.isAiPlugin}))
+                                }
+                            })
+
+                        }
+                    }) 
+                } catch (error) {}
+                return
+            }
+        }
+
+        if (keyPath.includes("数据包扫描")) {
+            if (isAllSelect) {
+                yakitNotify("warning", "该批量操作不支持全选")
+                return
+            }
+            const currentItemScan = menuData.find(
+                (f) => f.onClickBatch && f.key === "数据包扫描"
+            )
+            const currentItemPacketScan = packetScanDefaultValue.find(
+                (f) => f.Verbose === key
+            )
+            if (!currentItemScan || !currentItemPacketScan) return
+
+            onBatchExecPacketScan({
+                httpFlowIds: selectedRowKeys,
+                maxLength: currentItemScan.number || 0,
+                currentPacketScan: currentItemPacketScan
+            })
+            return
+        }
+        if (keyPath.includes("标注颜色")) {
+            const currentItemColor = menuData.find(
+                (f) => f.onClickBatch && f.key === "标注颜色"
+            )
+            const colorItem = availableColors.find((e) => e.title === key)
+            if (!currentItemColor || !colorItem) return
+            CalloutColorBatch(
+                selectedRows,
+                currentItemColor?.number || 0,
+                colorItem
+            )
+            return
+        }
+        switch (key) {
+            case "删除记录":
+                onRemoveHttpHistory({
+                    Id: selectedRowKeys
+                })
+                break
+            case "删除URL":
+                const urls = selectedRows.map((ele) => ele.Url)
+                onRemoveHttpHistory({
+                    Filter: {
+                        IncludeInUrl: urls
+                    }
+                })
+                break
+            case "删除域名":
+                const hosts = selectedRows.map((ele) => ele.HostPort?.split(":")[0])
+                onRemoveHttpHistory({
+                    Filter: {
+                        IncludeInUrl: hosts
+                    }
+                })
+                break
+            case "sendAndJumpToWebFuzzer":
+                const currentItemJumpToFuzzer = menuData.find(
+                    (f) => f.onClickBatch && f.key === "发送到 Web Fuzzer"
+                )
+                if (!currentItemJumpToFuzzer) return
+                onBatch(
+                    onSendToTab,
+                    currentItemJumpToFuzzer?.number || 0,
+                    selectedRowKeys.length === total
+                )
+
+                break
+            case "sendToWebFuzzer":
+                const currentItemToFuzzer = menuData.find(
+                    (f) => f.onClickBatch && f.key === "发送到 Web Fuzzer"
+                )
+                if (!currentItemToFuzzer) return
+                onBatch(
+                    (el) => onSendToTab(el, false),
+                    currentItemToFuzzer?.number || 0,
+                    selectedRowKeys.length === total
+                )
+                break
+            case "sendAndJumpToWS":
+                const currentItemJumpToWS = menuData.find(
+                    (f) => f.onClickBatch && f.key === "发送到WS Fuzzer"
+                )
+                if (!currentItemJumpToWS) return
+                onBatch(
+                    (el) => newWebsocketFuzzerTab(el.IsHTTPS, el.Request),
+                    currentItemJumpToWS?.number || 0,
+                    selectedRowKeys.length === total
+                )
+
+                break
+            case "sendToWS":
+                const currentItemToWS = menuData.find(
+                    (f) => f.onClickBatch && f.key === "发送到WS Fuzzer"
+                )
+                if (!currentItemToWS) return
+                onBatch(
+                    (el) => newWebsocketFuzzerTab(el.IsHTTPS, el.Request, false),
+                    currentItemToWS?.number || 0,
+                    selectedRowKeys.length === total
+                )
+                break
+            default:
+                const currentItem = menuData.find(
+                    (f) => f.onClickBatch && f.key === key
+                )
+                if (!currentItem) return
+                if (currentItem.onClickBatch)
+                    currentItem.onClickBatch(selectedRows, currentItem.number)
+                break
+        }
+        setBatchVisible(false)
+    })
+
     const batchActions = useMemoizedFn(() => {
         return (
             <>
@@ -3069,147 +3220,7 @@ export const HTTPFlowTable = React.memo<HTTPFlowTableProp>((props) => {
                                         selectedKeys={[]}
                                         data={getBatchContextMenu()}
                                         onClick={({key, keyPath}) => {
-                                            const batchContextMenu = getBatchContextMenu()
-                                            if(keyPath.length === 2){
-                                                const menuName = keyPath[1]
-                                                const menuItemName = keyPath[0]
-                                                if(menuName === "插件扩展"){
-                                                    // 没有插件 下载codec插件
-                                                    if(key === "Get*plug-in"){
-                                                        emiter.emit("onOpenFuzzerModal",JSON.stringify({scriptName:key,isAiPlugin:"isGetPlugin"}))
-                                                        return
-                                                    }
-                                                    if(isAllSelect){
-                                                        yakitNotify("warning", "该批量操作不支持全选")
-                                                        return
-                                                    }
-                                                    try {
-                                                        batchContextMenu.forEach((item)=>{
-                                                            if(item.key === menuName && Array.isArray(item.children)){
-                                                                item.children.forEach((itemIn)=>{
-                                                                    if(itemIn.key === menuItemName){
-                                                                        emiter.emit("onOpenFuzzerModal",JSON.stringify({text:selectedRowKeys,scriptName:menuItemName,isAiPlugin:itemIn?.isAiPlugin}))
-                                                                    }
-                                                                })
-                        
-                                                            }
-                                                        }) 
-                                                    } catch (error) {}
-                                                    return
-                                                }
-                                            }
-
-                                            if (keyPath.includes("数据包扫描")) {
-                                                if (isAllSelect) {
-                                                    yakitNotify("warning", "该批量操作不支持全选")
-                                                    return
-                                                }
-                                                const currentItemScan = menuData.find(
-                                                    (f) => f.onClickBatch && f.key === "数据包扫描"
-                                                )
-                                                const currentItemPacketScan = packetScanDefaultValue.find(
-                                                    (f) => f.Verbose === key
-                                                )
-                                                if (!currentItemScan || !currentItemPacketScan) return
-
-                                                onBatchExecPacketScan({
-                                                    httpFlowIds: selectedRowKeys,
-                                                    maxLength: currentItemScan.number || 0,
-                                                    currentPacketScan: currentItemPacketScan
-                                                })
-                                                return
-                                            }
-                                            if (keyPath.includes("标注颜色")) {
-                                                const currentItemColor = menuData.find(
-                                                    (f) => f.onClickBatch && f.key === "标注颜色"
-                                                )
-                                                const colorItem = availableColors.find((e) => e.title === key)
-                                                if (!currentItemColor || !colorItem) return
-                                                CalloutColorBatch(
-                                                    selectedRows,
-                                                    currentItemColor?.number || 0,
-                                                    colorItem
-                                                )
-                                                return
-                                            }
-                                            switch (key) {
-                                                case "删除记录":
-                                                    onRemoveHttpHistory({
-                                                        Id: selectedRowKeys
-                                                    })
-                                                    break
-                                                case "删除URL":
-                                                    const urls = selectedRows.map((ele) => ele.Url)
-                                                    onRemoveHttpHistory({
-                                                        Filter: {
-                                                            IncludeInUrl: urls
-                                                        }
-                                                    })
-                                                    break
-                                                case "删除域名":
-                                                    const hosts = selectedRows.map((ele) => ele.HostPort?.split(":")[0])
-                                                    onRemoveHttpHistory({
-                                                        Filter: {
-                                                            IncludeInUrl: hosts
-                                                        }
-                                                    })
-                                                    break
-                                                case "sendAndJumpToWebFuzzer":
-                                                    const currentItemJumpToFuzzer = menuData.find(
-                                                        (f) => f.onClickBatch && f.key === "发送到 Web Fuzzer"
-                                                    )
-                                                    if (!currentItemJumpToFuzzer) return
-                                                    onBatch(
-                                                        onSendToTab,
-                                                        currentItemJumpToFuzzer?.number || 0,
-                                                        selectedRowKeys.length === total
-                                                    )
-
-                                                    break
-                                                case "sendToWebFuzzer":
-                                                    const currentItemToFuzzer = menuData.find(
-                                                        (f) => f.onClickBatch && f.key === "发送到 Web Fuzzer"
-                                                    )
-                                                    if (!currentItemToFuzzer) return
-                                                    onBatch(
-                                                        (el) => onSendToTab(el, false),
-                                                        currentItemToFuzzer?.number || 0,
-                                                        selectedRowKeys.length === total
-                                                    )
-                                                    break
-                                                case "sendAndJumpToWS":
-                                                    const currentItemJumpToWS = menuData.find(
-                                                        (f) => f.onClickBatch && f.key === "发送到WS Fuzzer"
-                                                    )
-                                                    if (!currentItemJumpToWS) return
-                                                    onBatch(
-                                                        (el) => newWebsocketFuzzerTab(el.IsHTTPS, el.Request),
-                                                        currentItemJumpToWS?.number || 0,
-                                                        selectedRowKeys.length === total
-                                                    )
-
-                                                    break
-                                                case "sendToWS":
-                                                    const currentItemToWS = menuData.find(
-                                                        (f) => f.onClickBatch && f.key === "发送到WS Fuzzer"
-                                                    )
-                                                    if (!currentItemToWS) return
-                                                    onBatch(
-                                                        (el) => newWebsocketFuzzerTab(el.IsHTTPS, el.Request, false),
-                                                        currentItemToWS?.number || 0,
-                                                        selectedRowKeys.length === total
-                                                    )
-                                                    break
-                                                default:
-                                                    const currentItem = menuData.find(
-                                                        (f) => f.onClickBatch && f.key === key
-                                                    )
-                                                    if (!currentItem) return
-                                                    if (currentItem.onClickBatch)
-                                                        currentItem.onClickBatch(selectedRows, currentItem.number)
-                                                    break
-                                            }
-                                            setBatchVisible(false)
+                                            onMultipleClick(key,keyPath)
                                         }}
                                     />
                                 }

@@ -127,13 +127,13 @@ import {YakitInputNumber} from "../yakitUI/YakitInputNumber/YakitInputNumber"
 import {YakitRadioButtons} from "../yakitUI/YakitRadioButtons/YakitRadioButtons"
 import emiter from "@/utils/eventBus/eventBus"
 import useHoldGRPCStream from "@/hook/useHoldGRPCStream/useHoldGRPCStream"
-import { PluginExecuteResult } from "@/pages/plugins/operator/pluginExecuteResult/PluginExecuteResult"
+import {PluginExecuteResult} from "@/pages/plugins/operator/pluginExecuteResult/PluginExecuteResult"
 const {ipcRenderer} = window.require("electron")
 
 interface CodecParamsProps {
-    text?: string; 
-    scriptName: string; 
-    isAiPlugin:boolean
+    text?: string
+    scriptName: string
+    isAiPlugin: boolean
 }
 
 /** 将 new Date 转换为日期 */
@@ -285,13 +285,13 @@ export const YakChatCS: React.FC<YakChatCSProps> = (props) => {
     const [resTime, setResTime, getResTime] = useGetState<string>("")
     const resTimeRef = useRef<any>(null)
 
-    const [chatcsType, setChatcsType] = useState<"ChatCS" | "PluginAI">(userInfo.isLogin?"ChatCS":"PluginAI")
-    const [pluginAIParams,setPluginAIParams] = useState<CodecParamsProps>()
+    const [chatcsType, setChatcsType] = useState<"ChatCS" | "PluginAI">(userInfo.isLogin ? "ChatCS" : "PluginAI")
+    const [pluginAIParams, setPluginAIParams] = useState<CodecParamsProps>()
     const [pluginAIList, setPluginAIList] = useState<PluginAiItem[]>([])
     // 仅展示当前执行项
-    const [showOnly,setShowOnly] = useState<boolean>(false)
+    const [showOnly, setShowOnly] = useState<boolean>(false)
     // 是否为ai展示
-    const [isShowAI,setShowAI] = useState<boolean>(true)
+    const [isShowAI, setShowAI] = useState<boolean>(true)
 
     const [popoverVisible, setPopoverVisible] = useState<boolean>(false)
     const [maxNumber, setMaxNumber] = useState<number>(5)
@@ -356,7 +356,7 @@ export const YakChatCS: React.FC<YakChatCSProps> = (props) => {
 
     const PluginAIListCache = "PLUGIN_AILIST_CACHE"
 
-    useEffect(()=>{
+    useEffect(() => {
         getRemoteValue(PluginAIListCache).then((value: string) => {
             if (!value) return
             try {
@@ -364,21 +364,19 @@ export const YakChatCS: React.FC<YakChatCSProps> = (props) => {
                 setPluginAIList(data)
             } catch (error) {}
         })
-    },[])
+    }, [])
 
-    useUpdateEffect(()=>{
+    useUpdateEffect(() => {
         setRemoteValue(PluginAIListCache, JSON.stringify(pluginAIList))
-    },[pluginAIList])
+    }, [pluginAIList])
 
-    const onFuzzerRunChatcsAI = useMemoizedFn((value)=>{
+    const onFuzzerRunChatcsAI = useMemoizedFn((value) => {
         try {
             const val: CodecParamsProps = JSON.parse(value)
             setVisible(true)
             setPluginAIParams(val)
             setChatcsType("PluginAI")
-        } catch (error) {
-            
-        }
+        } catch (error) {}
     })
 
     useEffect(() => {
@@ -503,7 +501,7 @@ export const YakChatCS: React.FC<YakChatCSProps> = (props) => {
                     objects.push(JSON.parse(itemIn))
                 } catch (error) {}
             })
-        
+
         let resultAll: string = ""
         objects.map((item, index) => {
             const {id = "", role = "", result = ""} = item
@@ -534,7 +532,7 @@ export const YakChatCS: React.FC<YakChatCSProps> = (props) => {
         }
 
         if (loadObj.length > 0) {
-            answer = {id: loadObj[loadObj.length - 1].id, role: "", script: [], loadResult: loadObj,input:""}
+            answer = {id: loadObj[loadObj.length - 1].id, role: "", script: [], loadResult: loadObj, input: ""}
         }
         flow.split("data:")
             .filter((item) => item.length !== 0)
@@ -542,24 +540,24 @@ export const YakChatCS: React.FC<YakChatCSProps> = (props) => {
                 try {
                     let newItemIn = itemIn
                     // plugin返回结构需额外移除掉state
-                    const stateIndex = newItemIn.indexOf('state:');
-                    if(isPlugin && stateIndex !== -1){
-                        newItemIn = newItemIn.substring(0, stateIndex);
+                    const stateIndex = newItemIn.indexOf("state:")
+                    if (isPlugin && stateIndex !== -1) {
+                        newItemIn = newItemIn.substring(0, stateIndex)
                     }
                     objects.push(JSON.parse(newItemIn))
                 } catch (error) {}
             })
-        
+
         let resultAll: string[] = []
         objects.map((item, index) => {
             const {id = "", role = "", script} = item
-            let input:string = ""
+            let input: string = ""
             try {
                 input = script.arguments.target
             } catch (error) {}
             script && resultAll.push(script.name)
             if (answer && objects.length === index + 1) {
-                answer = {...answer, id, role, script: resultAll,input}
+                answer = {...answer, id, role, script: resultAll, input}
             }
             if (!answer && objects.length === index + 1) {
                 answer = {id, role, script: resultAll, input}
@@ -603,7 +601,6 @@ export const YakChatCS: React.FC<YakChatCSProps> = (props) => {
                 end: false
             }
             return await new Promise((resolve, reject) => {
-                
                 chatCSPlugin({
                     ...params,
                     token: userInfo.token,
@@ -616,7 +613,7 @@ export const YakChatCS: React.FC<YakChatCSProps> = (props) => {
                         let answer: ChatCSPluginAnswerProps | undefined = analysisPluginFlowData(responseText)
 
                         if (answer && answer.script.length !== 0) {
-                            let mathYakData = yakData.filter((item) => (answer?.script||[]).includes(item.ScriptName))
+                            let mathYakData = yakData.filter((item) => (answer?.script || []).includes(item.ScriptName))
                             const newContent = JSON.stringify({
                                 input: answer.input,
                                 data: mathYakData
@@ -633,7 +630,7 @@ export const YakChatCS: React.FC<YakChatCSProps> = (props) => {
                         }
 
                         // console.log("cs---",cs,answer);
-                        
+
                         setContentPluginList(cs, contents, group)
                     }
                 })
@@ -658,7 +655,7 @@ export const YakChatCS: React.FC<YakChatCSProps> = (props) => {
                             cs.is_plugin = false
                             cs.content = "该类型请求异常，请稍后重试"
                         }
-                        cs.end = true 
+                        cs.end = true
                         setContentPluginList(cs, contents, group)
                         resolve(`plugin|error|${e}`)
                     })
@@ -723,7 +720,6 @@ export const YakChatCS: React.FC<YakChatCSProps> = (props) => {
                     }
                 })
                     .then((res: any) => {
-
                         // /** 流式输出逻辑 */
                         if (cs.content.length === 0) {
                             cs.content = "暂无可用解答"
@@ -849,7 +845,9 @@ export const YakChatCS: React.FC<YakChatCSProps> = (props) => {
                 await new Promise((resolve, reject) => {
                     ipcRenderer.invoke("QueryYakScriptLocalAll").then(async (item: QueryYakScriptsResponse) => {
                         // 因后端要求 - 限制只要mitm和端口扫描插件
-                        let scripts: ScriptsProps[] = item.Data.filter((item)=>(item.Type==="port-scan"||item.Type==="mitm")).map((i) => ({
+                        let scripts: ScriptsProps[] = item.Data.filter(
+                            (item) => item.Type === "port-scan" || item.Type === "mitm"
+                        ).map((i) => ({
                             script_name: i.ScriptName,
                             Fields: i.Params
                         }))
@@ -901,7 +899,7 @@ export const YakChatCS: React.FC<YakChatCSProps> = (props) => {
         /** 流式输出逻辑 */
         isBreak.current = true
         // console.log("停止回答",controller.current);
-        
+
         if (controller.current) {
             controller.current.abort()
         }
@@ -1173,12 +1171,14 @@ export const YakChatCS: React.FC<YakChatCSProps> = (props) => {
                                     <div className={styles["divider-style"]}></div>
                                 </>
                             )}
-                            {chatcsType === "PluginAI" && !showOnly && !isShowAI && (
+                            {chatcsType === "PluginAI" && !showOnly && (
                                 <>
                                     <Tooltip overlayClassName={styles["tooltip-wrapper"]} title={"清空插件输出"}>
                                         <div
                                             className={classNames(styles["small-btn"], styles["btn-style"])}
-                                            onClick={() => {setPluginAIList([])}}
+                                            onClick={() => {
+                                                setPluginAIList([])
+                                            }}
                                         >
                                             <TrashIcon />
                                         </div>
@@ -1186,15 +1186,13 @@ export const YakChatCS: React.FC<YakChatCSProps> = (props) => {
                                     <div className={styles["divider-style"]}></div>
                                 </>
                             )}
-                            {
-                                chatcsType === "PluginAI" && showOnly && isShowAI && (
-                                    <>
+                            {chatcsType === "PluginAI" && showOnly && (
+                                <>
                                     <Tooltip overlayClassName={styles["tooltip-wrapper"]} title={"历史"}>
                                         <div
                                             className={classNames(styles["big-btn"], styles["btn-style"])}
                                             onClick={() => {
                                                 setShowOnly(false)
-                                                setShowAI(false)
                                             }}
                                         >
                                             <ClockIcon />
@@ -1202,8 +1200,7 @@ export const YakChatCS: React.FC<YakChatCSProps> = (props) => {
                                     </Tooltip>
                                     <div className={styles["divider-style"]}></div>
                                 </>
-                                )
-                            }
+                            )}
                             <div
                                 className={classNames(styles["small-btn"], styles["btn-style"], styles["expand-icon"])}
                                 onClick={() => {
@@ -1229,278 +1226,271 @@ export const YakChatCS: React.FC<YakChatCSProps> = (props) => {
                 </div>
 
                 <div className={styles["layout-main"]}>
-                   
-                        <div className={classNames(styles["layout-body-footer"],{
-                        [styles["layout-body-footer-hidden"]]: chatcsType !== "ChatCS",
-                        }) }>
-                            <div className={styles["layout-body"]}>
-                                <div className={styles["body-wrapper"]}>
-                                    {history.length === 0 || currentChat.length === 0 ? (
-                                        <>
-                                            {/* 欢迎页 */}
-                                            <div className={styles["welcome-header"]}>
-                                                <div className={styles["header-title"]}>
-                                                    <div
-                                                        className={classNames(
-                                                            styles["title-style"],
-                                                            "content-ellipsis"
-                                                        )}
-                                                    >
-                                                        {`你好,${showName}`}
-                                                    </div>
-                                                    👋
+                    <div
+                        className={classNames(styles["layout-body-footer"], {
+                            [styles["layout-body-footer-hidden"]]: chatcsType !== "ChatCS"
+                        })}
+                    >
+                        <div className={styles["layout-body"]}>
+                            <div className={styles["body-wrapper"]}>
+                                {history.length === 0 || currentChat.length === 0 ? (
+                                    <>
+                                        {/* 欢迎页 */}
+                                        <div className={styles["welcome-header"]}>
+                                            <div className={styles["header-title"]}>
+                                                <div className={classNames(styles["title-style"], "content-ellipsis")}>
+                                                    {`你好,${showName}`}
                                                 </div>
-                                                <div className={styles["header-subTitle"]}>有什么我能帮助你的吗？</div>
+                                                👋
                                             </div>
-                                            <div className={styles["welcome-preset-list"]}>
-                                                <div className={styles["list-wrapper"]}>
-                                                    <div className={styles["info-hint-wrapper"]}>
-                                                        <OutlineInformationcircleIcon />
-                                                        ChatCS模型参数：6.5b，训练Token: 1.5T
-                                                        显卡资源：A40*4，使用文心增强知识推理能力
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </>
-                                    ) : (
-                                        <div ref={contentRef} className={styles["body-content"]}>
-                                            {currentChat.map((item) => {
-                                                const {token, isMe, time, info, renderType} = item
-                                                
-                                                if (isMe) {
-                                                    return (
-                                                        <ChatUserContent
-                                                            key={token}
-                                                            time={time}
-                                                            info={info as ChatMeInfoProps}
-                                                            onDel={() => onDelContent(item)}
-                                                        />
-                                                    )
-                                                } else {
-                                                    return (
-                                                        <ChatCSContent
-                                                            onPluginEnd={onPluginEnd}
-                                                            key={token}
-                                                            token={token}
-                                                            loadingToken={loadingToken}
-                                                            loading={loading}
-                                                            resTime={resTime}
-                                                            time={time}
-                                                            info={info as ChatCSMultipleInfoProps}
-                                                            onStop={onStop}
-                                                            onLike={(isLike) => onLikes(item, isLike)}
-                                                            onDel={() => onDelContent(item)}
-                                                            renderType={renderType}
-                                                        />
-                                                    )
-                                                }
-                                            })}
+                                            <div className={styles["header-subTitle"]}>有什么我能帮助你的吗？</div>
                                         </div>
-                                    )}
-                                </div>
+                                        <div className={styles["welcome-preset-list"]}>
+                                            <div className={styles["list-wrapper"]}>
+                                                <div className={styles["info-hint-wrapper"]}>
+                                                    <OutlineInformationcircleIcon />
+                                                    ChatCS模型参数：6.5b，训练Token: 1.5T
+                                                    显卡资源：A40*4，使用文心增强知识推理能力
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </>
+                                ) : (
+                                    <div ref={contentRef} className={styles["body-content"]}>
+                                        {currentChat.map((item) => {
+                                            const {token, isMe, time, info, renderType} = item
 
-                                {currentChat.length !== 0 && isBottom && (
-                                    <div className={styles["body-to-bottom"]} onClick={scrollToBottom}>
-                                        <ArrowDownIcon />
+                                            if (isMe) {
+                                                return (
+                                                    <ChatUserContent
+                                                        key={token}
+                                                        time={time}
+                                                        info={info as ChatMeInfoProps}
+                                                        onDel={() => onDelContent(item)}
+                                                    />
+                                                )
+                                            } else {
+                                                return (
+                                                    <ChatCSContent
+                                                        onPluginEnd={onPluginEnd}
+                                                        key={token}
+                                                        token={token}
+                                                        loadingToken={loadingToken}
+                                                        loading={loading}
+                                                        resTime={resTime}
+                                                        time={time}
+                                                        info={info as ChatCSMultipleInfoProps}
+                                                        onStop={onStop}
+                                                        onLike={(isLike) => onLikes(item, isLike)}
+                                                        onDel={() => onDelContent(item)}
+                                                        renderType={renderType}
+                                                    />
+                                                )
+                                            }
+                                        })}
                                     </div>
                                 )}
                             </div>
 
-                            {!loading && (
-                                <div className={styles["layout-footer"]}>
-                                    {!isShowPrompt && (
-                                        <div className={styles["footer-prompt"]}>
-                                            <div
-                                                className={styles["footer-book"]}
-                                                onClick={() => {
-                                                    setShowPrompt(true)
-                                                }}
-                                            >
-                                                <YakChatBookIcon />
-                                                <span className={styles["content"]}>Prompt</span>
-                                            </div>
-                                        </div>
-                                    )}
-                                    <div className={styles["footer-wrapper"]}>
-                                        <Input.TextArea
-                                            className={styles["text-area-wrapper"]}
-                                            bordered={false}
-                                            placeholder='问我任何问题...(shift + enter 换行)'
-                                            value={question}
-                                            autoSize={true}
-                                            onChange={(e) => setQuestion(e.target.value)}
-                                            onKeyDown={(e) => {
-                                                const keyCode = e.keyCode ? e.keyCode : e.key
-                                                const shiftKey = e.shiftKey
-                                                if (keyCode === 13 && shiftKey) {
-                                                    e.stopPropagation()
-                                                    e.preventDefault()
-                                                    setQuestion(`${question}\n`)
-                                                }
-                                                if (keyCode === 13 && !shiftKey) {
-                                                    e.stopPropagation()
-                                                    e.preventDefault()
-                                                    onBtnSubmit()
-                                                }
-                                            }}
-                                        />
-                                        <div className={styles["input-footer"]}>
-                                            {(+width || 451) < 450 ? (
-                                                <YakitPopover
-                                                    overlayClassName={styles["yakit-popover-type"]}
-                                                    overlayStyle={{paddingBottom: 4}}
-                                                    placement='topRight'
-                                                    trigger={"click"}
-                                                    content={
-                                                        <div className={styles["footer-popover-wrapper"]}>
-                                                            <div className={styles["footer-type-wrapper"]}>
-                                                                <div className={styles["type-title"]}>
-                                                                    回答类型
-                                                                    <Tooltip
-                                                                        overlayClassName={styles["tooltip-wrapper"]}
-                                                                        title={"ChatCS 将根据选择的类型回答你的问题"}
-                                                                    >
-                                                                        <QuestionMarkCircleIcon />
-                                                                    </Tooltip>
-                                                                    :
-                                                                </div>
-                                                                <div
-                                                                    className={classNames(styles["single-btn"], {
-                                                                        [styles["single-active-btn"]]: isBing
-                                                                    })}
-                                                                    onClick={() => setBing(!isBing)}
-                                                                >
-                                                                    搜索引擎增强
-                                                                </div>
-                                                                <div
-                                                                    className={classNames(styles["single-btn"], {
-                                                                        [styles["single-active-btn"]]: isPlugin
-                                                                    })}
-                                                                    onClick={() => setPlugin(!isPlugin)}
-                                                                >
-                                                                    插件调试执行
-                                                                </div>
-                                                            </div>
-                                                            {isPlugin && (
-                                                                <div className={styles["plugin-run-max-number-box"]}>
-                                                                    <div className={styles["title"]}>
-                                                                        最大执行数量：
-                                                                    </div>
-                                                                    <div>
-                                                                        <YakitInputNumber
-                                                                            className={styles["input-left"]}
-                                                                            placeholder='Minimum'
-                                                                            min={1}
-                                                                            value={maxNumber}
-                                                                            onChange={(v) => {
-                                                                                setMaxNumber(v as number)
-                                                                            }}
-                                                                            size='small'
-                                                                        />
-                                                                    </div>
-                                                                </div>
-                                                            )}
-                                                        </div>
-                                                    }
-                                                >
-                                                    <div className={styles["footer-type-mini"]}>
-                                                        <CogIcon />
-                                                    </div>
-                                                </YakitPopover>
-                                            ) : (
-                                                <div className={styles["footer-type-wrapper"]}>
-                                                    <div className={styles["type-title"]}>
-                                                        回答类型
-                                                        <Tooltip
-                                                            overlayStyle={{paddingBottom: 5}}
-                                                            title={"ChatCS 将根据选择的类型回答你的问题"}
-                                                        >
-                                                            <QuestionMarkCircleIcon />
-                                                        </Tooltip>
-                                                        :
-                                                    </div>
-                                                    <div
-                                                        className={classNames(styles["single-btn"], {
-                                                            [styles["single-active-btn"]]: isBing
-                                                        })}
-                                                        onClick={() => setBing(!isBing)}
-                                                    >
-                                                        搜索引擎增强
-                                                    </div>
-                                                    <div
-                                                        className={classNames(styles["single-btn"], {
-                                                            [styles["single-active-btn"]]: isPlugin
-                                                        })}
-                                                        onClick={() => setPlugin(!isPlugin)}
-                                                    >
-                                                        插件调试执行
-                                                    </div>
-                                                    {isPlugin && (
-                                                        <YakitPopover
-                                                            title={"插件配置"}
-                                                            // placement="topLeft"
-                                                            overlayClassName={styles["chatcs-plugin-option-popover"]}
-                                                            content={
-                                                                <div className={styles["option-box"]}>
-                                                                    <div>最大执行数量：</div>
-                                                                    <div>
-                                                                        <YakitInputNumber
-                                                                            className={styles["input-left"]}
-                                                                            placeholder='Minimum'
-                                                                            min={1}
-                                                                            value={maxNumber}
-                                                                            onChange={(v) => {
-                                                                                setMaxNumber(v as number)
-                                                                            }}
-                                                                            size='small'
-                                                                        />
-                                                                    </div>
-                                                                </div>
-                                                            }
-                                                            onVisibleChange={(v) => {
-                                                                setPopoverVisible(v)
-                                                            }}
-                                                            overlayInnerStyle={{width: 220}}
-                                                            visible={popoverVisible}
-                                                        >
-                                                            <YakitButton
-                                                                icon={<SettingOutlined />}
-                                                                type={"text"}
-                                                                size={"small"}
-                                                            />
-                                                        </YakitPopover>
-                                                    )}
-                                                </div>
-                                            )}
-
-                                            <div className={styles["footer-divider"]}></div>
-                                            <div
-                                                className={classNames(styles["footer-submit"], {
-                                                    [styles["footer-active-submit"]]: !!question
-                                                })}
-                                                onClick={onBtnSubmit}
-                                            >
-                                                <PaperPlaneRightIcon />
-                                            </div>
-                                        </div>
-                                    </div>
+                            {currentChat.length !== 0 && isBottom && (
+                                <div className={styles["body-to-bottom"]} onClick={scrollToBottom}>
+                                    <ArrowDownIcon />
                                 </div>
                             )}
                         </div>
-                   
 
-                    <PluginAIComponent 
-                    visible={chatcsType === "PluginAI"} 
-                    params={pluginAIParams} 
-                    setParams={setPluginAIParams} 
-                    pluginAIList={pluginAIList} 
-                    setPluginAIList={setPluginAIList}
-                    showOnly={showOnly}
-                    setShowOnly={setShowOnly}
-                    isShowAI={isShowAI}
-                    setShowAI={setShowAI}
+                        {!loading && (
+                            <div className={styles["layout-footer"]}>
+                                {!isShowPrompt && (
+                                    <div className={styles["footer-prompt"]}>
+                                        <div
+                                            className={styles["footer-book"]}
+                                            onClick={() => {
+                                                setShowPrompt(true)
+                                            }}
+                                        >
+                                            <YakChatBookIcon />
+                                            <span className={styles["content"]}>Prompt</span>
+                                        </div>
+                                    </div>
+                                )}
+                                <div className={styles["footer-wrapper"]}>
+                                    <Input.TextArea
+                                        className={styles["text-area-wrapper"]}
+                                        bordered={false}
+                                        placeholder='问我任何问题...(shift + enter 换行)'
+                                        value={question}
+                                        autoSize={true}
+                                        onChange={(e) => setQuestion(e.target.value)}
+                                        onKeyDown={(e) => {
+                                            const keyCode = e.keyCode ? e.keyCode : e.key
+                                            const shiftKey = e.shiftKey
+                                            if (keyCode === 13 && shiftKey) {
+                                                e.stopPropagation()
+                                                e.preventDefault()
+                                                setQuestion(`${question}\n`)
+                                            }
+                                            if (keyCode === 13 && !shiftKey) {
+                                                e.stopPropagation()
+                                                e.preventDefault()
+                                                onBtnSubmit()
+                                            }
+                                        }}
+                                    />
+                                    <div className={styles["input-footer"]}>
+                                        {(+width || 451) < 450 ? (
+                                            <YakitPopover
+                                                overlayClassName={styles["yakit-popover-type"]}
+                                                overlayStyle={{paddingBottom: 4}}
+                                                placement='topRight'
+                                                trigger={"click"}
+                                                content={
+                                                    <div className={styles["footer-popover-wrapper"]}>
+                                                        <div className={styles["footer-type-wrapper"]}>
+                                                            <div className={styles["type-title"]}>
+                                                                回答类型
+                                                                <Tooltip
+                                                                    overlayClassName={styles["tooltip-wrapper"]}
+                                                                    title={"ChatCS 将根据选择的类型回答你的问题"}
+                                                                >
+                                                                    <QuestionMarkCircleIcon />
+                                                                </Tooltip>
+                                                                :
+                                                            </div>
+                                                            <div
+                                                                className={classNames(styles["single-btn"], {
+                                                                    [styles["single-active-btn"]]: isBing
+                                                                })}
+                                                                onClick={() => setBing(!isBing)}
+                                                            >
+                                                                搜索引擎增强
+                                                            </div>
+                                                            <div
+                                                                className={classNames(styles["single-btn"], {
+                                                                    [styles["single-active-btn"]]: isPlugin
+                                                                })}
+                                                                onClick={() => setPlugin(!isPlugin)}
+                                                            >
+                                                                插件调试执行
+                                                            </div>
+                                                        </div>
+                                                        {isPlugin && (
+                                                            <div className={styles["plugin-run-max-number-box"]}>
+                                                                <div className={styles["title"]}>最大执行数量：</div>
+                                                                <div>
+                                                                    <YakitInputNumber
+                                                                        className={styles["input-left"]}
+                                                                        placeholder='Minimum'
+                                                                        min={1}
+                                                                        value={maxNumber}
+                                                                        onChange={(v) => {
+                                                                            setMaxNumber(v as number)
+                                                                        }}
+                                                                        size='small'
+                                                                    />
+                                                                </div>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                }
+                                            >
+                                                <div className={styles["footer-type-mini"]}>
+                                                    <CogIcon />
+                                                </div>
+                                            </YakitPopover>
+                                        ) : (
+                                            <div className={styles["footer-type-wrapper"]}>
+                                                <div className={styles["type-title"]}>
+                                                    回答类型
+                                                    <Tooltip
+                                                        overlayStyle={{paddingBottom: 5}}
+                                                        title={"ChatCS 将根据选择的类型回答你的问题"}
+                                                    >
+                                                        <QuestionMarkCircleIcon />
+                                                    </Tooltip>
+                                                    :
+                                                </div>
+                                                <div
+                                                    className={classNames(styles["single-btn"], {
+                                                        [styles["single-active-btn"]]: isBing
+                                                    })}
+                                                    onClick={() => setBing(!isBing)}
+                                                >
+                                                    搜索引擎增强
+                                                </div>
+                                                <div
+                                                    className={classNames(styles["single-btn"], {
+                                                        [styles["single-active-btn"]]: isPlugin
+                                                    })}
+                                                    onClick={() => setPlugin(!isPlugin)}
+                                                >
+                                                    插件调试执行
+                                                </div>
+                                                {isPlugin && (
+                                                    <YakitPopover
+                                                        title={"插件配置"}
+                                                        // placement="topLeft"
+                                                        overlayClassName={styles["chatcs-plugin-option-popover"]}
+                                                        content={
+                                                            <div className={styles["option-box"]}>
+                                                                <div>最大执行数量：</div>
+                                                                <div>
+                                                                    <YakitInputNumber
+                                                                        className={styles["input-left"]}
+                                                                        placeholder='Minimum'
+                                                                        min={1}
+                                                                        value={maxNumber}
+                                                                        onChange={(v) => {
+                                                                            setMaxNumber(v as number)
+                                                                        }}
+                                                                        size='small'
+                                                                    />
+                                                                </div>
+                                                            </div>
+                                                        }
+                                                        onVisibleChange={(v) => {
+                                                            setPopoverVisible(v)
+                                                        }}
+                                                        overlayInnerStyle={{width: 220}}
+                                                        visible={popoverVisible}
+                                                    >
+                                                        <YakitButton
+                                                            icon={<SettingOutlined />}
+                                                            type={"text"}
+                                                            size={"small"}
+                                                        />
+                                                    </YakitPopover>
+                                                )}
+                                            </div>
+                                        )}
+
+                                        <div className={styles["footer-divider"]}></div>
+                                        <div
+                                            className={classNames(styles["footer-submit"], {
+                                                [styles["footer-active-submit"]]: !!question
+                                            })}
+                                            onClick={onBtnSubmit}
+                                        >
+                                            <PaperPlaneRightIcon />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+
+                    <PluginAIComponent
+                        visible={chatcsType === "PluginAI"}
+                        params={pluginAIParams}
+                        setParams={setPluginAIParams}
+                        pluginAIList={pluginAIList}
+                        setPluginAIList={setPluginAIList}
+                        showOnly={showOnly}
+                        setShowOnly={setShowOnly}
+                        isShowAI={isShowAI}
+                        setShowAI={setShowAI}
                     />
-                    
+
                     {isShowPrompt && chatcsType === "ChatCS" && (
                         <PromptWidget
                             setShowPrompt={setShowPrompt}
@@ -1551,12 +1541,12 @@ export const YakChatCS: React.FC<YakChatCSProps> = (props) => {
 interface ChatUserContentProps {
     time: string
     info: ChatMeInfoProps
-    onDel: () => any
+    onDel?: () => any
     classNameContent?: string
     scriptName?: string
 }
 const ChatUserContent: React.FC<ChatUserContentProps> = memo((props) => {
-    const {time, info, onDel,classNameContent,scriptName} = props
+    const {time, info, onDel, classNameContent, scriptName} = props
 
     const {userInfo} = useStore()
     const showImg = useMemo(() => {
@@ -1570,22 +1560,25 @@ const ChatUserContent: React.FC<ChatUserContentProps> = memo((props) => {
         <div className={classNames(styles["content-opt-wrapper"], styles["content-opt-me-wrapper"])}>
             <div className={styles["opt-header"]}>
                 <div className={styles["header-left"]}>
-                    {
-                        userInfo.isLogin?<img className={styles["img-style"]} src={showImg} />:
-                        <div className={styles['user-show']}><UnLoginSvgIcon /></div>
-                    }
-                    
+                    {userInfo.isLogin ? (
+                        <img className={styles["img-style"]} src={showImg} />
+                    ) : (
+                        <div className={styles["user-show"]}>
+                            <UnLoginSvgIcon />
+                        </div>
+                    )}
+
                     <span>{time}</span>
 
-                    {scriptName&&<span className={styles['']}>{scriptName}</span>}
+                    {scriptName && <span className={styles[""]}>{scriptName}</span>}
                 </div>
-                <div className={styles["header-right"]}>
+                {onDel&&<div className={styles["header-right"]}>
                     <div className={styles["right-btn"]} onClick={onDel}>
                         <TrashIcon />
                     </div>
-                </div>
+                </div>}
             </div>
-            <div className={classNames(styles["opt-content"],classNameContent || "")}>
+            <div className={classNames(styles["opt-content"], classNameContent || "")}>
                 <div className={styles["user-content-style"]}>{info.content}</div>
             </div>
         </div>
@@ -1810,7 +1803,7 @@ const PluginListContent: React.FC<PluginListContentProps> = memo((props) => {
                 const values = JSON.parse(setting)
                 privateDomainRef.current = values.BaseUrl
             }
-            if(!data) return
+            if (!data) return
             // 私有域获取完成后再解析数据
             try {
                 const arr: ChatPluginListProps = JSON.parse(data)
@@ -1819,7 +1812,6 @@ const PluginListContent: React.FC<PluginListContentProps> = memo((props) => {
             } catch (error) {
                 yakitNotify("error", `解析失败|${error}`)
                 // console.log("解析失败|",data);
-                
             }
         })
     })
@@ -2065,7 +2057,7 @@ const ChatCSContent: React.FC<ChatCSContentProps> = memo((props) => {
             }
         }
         const hybridScanParams: HybridScanControlAfterRequest = convertHybridScanParams(params, pluginInfo)
-        apiHybridScan({...hybridScanParams,HybridScanTaskSource:'pluginBatch'}, tokenRef.current).then(() => {
+        apiHybridScan({...hybridScanParams, HybridScanTaskSource: "pluginBatch"}, tokenRef.current).then(() => {
             setPluginRun(true)
             setPluginNameList(selectPluginName)
             setShowType("loading")
@@ -2203,69 +2195,69 @@ const ChatCSContent: React.FC<ChatCSContentProps> = memo((props) => {
                         </div>
                     </div>
                     <div className={styles["opt-content"]}>
-
-                            <div className={styles["content-style"]}>
-                                {info.content.length === 0 ? (
-                                    token === loadingToken?<></>:"请求出现错误，请稍候再试"
+                        <div className={styles["content-style"]}>
+                            {info.content.length === 0 ? (
+                                token === loadingToken ? (
+                                    <></>
                                 ) : (
+                                    "请求出现错误，请稍候再试"
+                                )
+                            ) : (
+                                <>
                                     <>
-                                        <>
-                                            {info.content.map((item, index) => {
-                                                return (
-                                                    <React.Fragment key={index + item.id}>
-                                                        {item.is_bing && (
-                                                            <div
-                                                                className={styles["content-type-title"]}
-                                                            >{`# ${"搜索引擎增强"}`}</div>
-                                                        )}
-                                                        {item.is_plugin && (
-                                                            <div
-                                                                className={styles["content-type-title"]}
-                                                            >{`# ${"插件调试执行"}`}</div>
+                                        {info.content.map((item, index) => {
+                                            return (
+                                                <React.Fragment key={index + item.id}>
+                                                    {item.is_bing && (
+                                                        <div
+                                                            className={styles["content-type-title"]}
+                                                        >{`# ${"搜索引擎增强"}`}</div>
+                                                    )}
+                                                    {item.is_plugin && (
+                                                        <div
+                                                            className={styles["content-type-title"]}
+                                                        >{`# ${"插件调试执行"}`}</div>
+                                                    )}
+                                                    <>
+                                                        {/* 兼容之前版本没有end load_content数据导致load_content遍历失败的问题 */}
+                                                        {!(typeof item.end === "boolean" ? item.end : true) && (
+                                                            <div className={styles["load-content-box"]}>
+                                                                {item.load_content.map((itemIn, IndexIn) => (
+                                                                    <div
+                                                                        className={styles["load-content-item"]}
+                                                                        key={IndexIn + itemIn.id + "load"}
+                                                                    >
+                                                                        {IndexIn + 1 === item.load_content.length ? (
+                                                                            <YakChatLoading />
+                                                                        ) : (
+                                                                            <CheckOutlined
+                                                                                className={styles["load-content-check"]}
+                                                                            />
+                                                                        )}
+                                                                        <div>{itemIn.result}</div>
+                                                                    </div>
+                                                                ))}
+                                                            </div>
                                                         )}
                                                         <>
-                                                            {/* 兼容之前版本没有end load_content数据导致load_content遍历失败的问题 */}
-                                                            {!(typeof item.end === "boolean" ? item.end : true) && (
-                                                                <div className={styles["load-content-box"]}>
-                                                                    {item.load_content.map((itemIn, IndexIn) => (
-                                                                        <div
-                                                                            className={styles["load-content-item"]}
-                                                                            key={IndexIn + itemIn.id + "load"}
-                                                                        >
-                                                                            {IndexIn + 1 ===
-                                                                            item.load_content.length ? (
-                                                                                <YakChatLoading />
-                                                                            ) : (
-                                                                                <CheckOutlined
-                                                                                    className={
-                                                                                        styles["load-content-check"]
-                                                                                    }
-                                                                                />
-                                                                            )}
-                                                                            <div>{itemIn.result}</div>
-                                                                        </div>
-                                                                    ))}
-                                                                </div>
+                                                            {item.is_plugin ? (
+                                                                <PluginListContent
+                                                                    setPluginRun={setPluginRun}
+                                                                    onStartExecute={onStartExecute}
+                                                                    data={item.content}
+                                                                />
+                                                            ) : (
+                                                                <ChatMarkdown content={item.content} />
                                                             )}
-                                                            <>
-                                                                {item.is_plugin ? (
-                                                                    <PluginListContent
-                                                                        setPluginRun={setPluginRun}
-                                                                        onStartExecute={onStartExecute}
-                                                                        data={item.content}
-                                                                    />
-                                                                ) : (
-                                                                    <ChatMarkdown content={item.content} />
-                                                                )}
-                                                            </>
                                                         </>
-                                                    </React.Fragment>
-                                                )
-                                            })}
-                                        </>
+                                                    </>
+                                                </React.Fragment>
+                                            )
+                                        })}
                                     </>
-                                )}
-                            </div>
+                                </>
+                            )}
+                        </div>
 
                         {showLoading && (
                             <div className={styles["loading-wrapper"]}>
@@ -2644,7 +2636,7 @@ const PromptWidget: React.FC<PromptWidgetProps> = memo((props) => {
                 ))}
             </div>
             <div className={styles["prompt-list"]} ref={promptListRef}>
-                {showPromptList.map((item,index) => (
+                {showPromptList.map((item, index) => (
                     <div
                         key={`${index}-${item.title}`}
                         className={styles["prompt-item"]}
@@ -2664,8 +2656,10 @@ const PromptWidget: React.FC<PromptWidgetProps> = memo((props) => {
                             <>
                                 <div className={styles["sub-title"]}>
                                     只需输入
-                                    {item.templateArr.map((itemIn,indexIn) => (
-                                        <span key={`${itemIn}-${indexIn}`} className={styles["span-label"]}>{itemIn}</span>
+                                    {item.templateArr.map((itemIn, indexIn) => (
+                                        <span key={`${itemIn}-${indexIn}`} className={styles["span-label"]}>
+                                            {itemIn}
+                                        </span>
                                     ))}
                                     将自动为你生成 Prompt
                                 </div>
@@ -2925,57 +2919,61 @@ interface PluginAiItem {
 interface PluginAIComponentProps {
     visible: boolean
     params?: CodecParamsProps
-    setParams: (v?:CodecParamsProps) => void
+    setParams: (v?: CodecParamsProps) => void
     pluginAIList: PluginAiItem[]
-    setPluginAIList:(v:any) => void
+    setPluginAIList: (v: any) => void
     isShowAI: boolean
-    setShowAI:(v:boolean) => void
+    setShowAI: (v: boolean) => void
     showOnly: boolean
-    setShowOnly:(v:boolean) => void
+    setShowOnly: (v: boolean) => void
 }
 
 export const PluginAIComponent: React.FC<PluginAIComponentProps> = (props) => {
-    const {visible,params,setParams,pluginAIList,setPluginAIList,showOnly,setShowOnly,isShowAI,setShowAI} = props
+    const {visible, params, setParams, pluginAIList, setPluginAIList, showOnly, setShowOnly, isShowAI, setShowAI} =
+        props
     const [loading, setLoading] = useState<boolean>(false)
     const [loadingToken, setLoadingToken] = useState<string>("")
     const [resTime, setResTime] = useState<string>("")
     const [runtimeId, setRuntimeId] = useState<string>("")
-    
-    const [pluginAIItem,setPluginAIItem] = useState<PluginAiItem[]>([])
-    
+
+    const [pluginAIItem, setPluginAIItem] = useState<PluginAiItem[]>([])
 
     const tokenRef = useRef<string>(randomString(40))
-    const pluginAIListRef = useRef<HTMLDivElement>(null)    
+    const pluginAIListRef = useRef<HTMLDivElement>(null)
 
     // 添加项
-    const AddAIList = useMemoizedFn((obj:PluginAiItem)=>{
-        setPluginAIItem((lastList)=>[...lastList,obj])
-        setPluginAIList((lastList)=>[...lastList,obj])
+    const AddAIList = useMemoizedFn((obj: PluginAiItem) => {
+        setPluginAIItem((lastList) => [...lastList, obj])
+        setPluginAIList((lastList) => [...lastList, obj])
         scrollToPluginAIBottom()
     })
 
     // 更新最后一项
-    const setLastAIList = useMemoizedFn((content:string)=>{
+    const setLastAIList = useMemoizedFn((content: string) => {
         try {
-            const newPluginAIList:PluginAiItem[] = JSON.parse(JSON.stringify(pluginAIList))
+            const newPluginAIList: PluginAiItem[] = JSON.parse(JSON.stringify(pluginAIList))
             // 更新单独展示项
-            setPluginAIItem((lastItem)=>lastItem.map((item,index)=>{
-                if(lastItem.length === index+1){
-                    item.info.content = content
-                    item.time = formatDate(+new Date())
+            setPluginAIItem((lastItem) =>
+                lastItem.map((item, index) => {
+                    if (lastItem.length === index + 1) {
+                        item.info.content = content
+                        item.time = formatDate(+new Date())
+                        return item
+                    }
                     return item
-                }
-                return item
-            }))
+                })
+            )
             // 更新历史展示
-            setPluginAIList(newPluginAIList.map((item,index)=>{
-                if(newPluginAIList.length === index+1){
-                    item.info.content = content
-                    item.time = formatDate(+new Date())
+            setPluginAIList(
+                newPluginAIList.map((item, index) => {
+                    if (newPluginAIList.length === index + 1) {
+                        item.info.content = content
+                        item.time = formatDate(+new Date())
+                        return item
+                    }
                     return item
-                }
-                return item
-            }))
+                })
+            )
             scrollToPluginAIBottom()
         } catch (error) {}
     })
@@ -2987,7 +2985,9 @@ export const PluginAIComponent: React.FC<PluginAIComponentProps> = (props) => {
             const scrollHeight = pluginAIListRef.current?.scrollHeight || 0
             const top = scroll?.top || 0
             if (scrollHeight - top < 5) return
-            ;(pluginAIListRef.current as HTMLDivElement).scrollTop = (pluginAIListRef.current as HTMLDivElement).scrollHeight
+            ;(pluginAIListRef.current as HTMLDivElement).scrollTop = (
+                pluginAIListRef.current as HTMLDivElement
+            ).scrollHeight
         }
     })
 
@@ -3010,66 +3010,71 @@ export const PluginAIComponent: React.FC<PluginAIComponentProps> = (props) => {
 
     useThrottleEffect(
         () => {
-            if(!isShowAI) return
-            let str = "";
-            (streamInfo.logState || []).reverse().forEach((item)=>{
+            if (!isShowAI) return
+            let str = ""
+            ;(streamInfo.logState || []).reverse().forEach((item) => {
                 try {
-                    str += JSON.parse(item.data)?.data||""
+                    str += JSON.parse(item.data)?.data || ""
                 } catch (error) {}
             })
-            if(str.length>0){
-               setLastAIList(str)
+            if (str.length > 0) {
+                setLastAIList(str)
             }
         },
-        [streamInfo.logState,isShowAI],
+        [streamInfo.logState, isShowAI],
         {wait: 400}
     )
 
     // 执行
-    const onStartExecute = useMemoizedFn((data: CodecParamsProps)=>{
-        const {text,scriptName,isAiPlugin} = data
+    const onStartExecute = useMemoizedFn((data: CodecParamsProps) => {
+        const {text, scriptName, isAiPlugin} = data
         const executeParams = {
-            Input: text||"",
+            Input: text || "",
             PluginName: scriptName,
             PluginType: "codec",
-            Code:"",
-
+            Code: ""
         }
         debugPluginStreamEvent.reset()
 
         ipcRenderer
-                .invoke("DebugPlugin", executeParams, tokenRef.current)
-                .then(() => {
-                    debugPluginStreamEvent.start()
-                })
-                .catch((e: any) => {
-                    yakitNotify("error", "本地插件执行出错:" + e)
-                })
+            .invoke("DebugPlugin", executeParams, tokenRef.current)
+            .then(() => {
+                debugPluginStreamEvent.start()
+            })
+            .catch((e: any) => {
+                yakitNotify("error", "本地插件执行出错:" + e)
+            })
     })
 
-    useEffect(()=>{
-        if(params){
-            const {text,scriptName,isAiPlugin} = params
+    useEffect(() => {
+        if (params) {
+            const {text, scriptName, isAiPlugin} = params
             setPluginAIItem([])
             setShowOnly(true)
             setShowAI(!!isAiPlugin)
-            if(isAiPlugin){
-                AddAIList({scriptName,info:{content:text},isMe:true,time: formatDate(+new Date()),token: randomString(10)})
+            if (isAiPlugin) {
+                AddAIList({
+                    scriptName,
+                    info: {content: text},
+                    isMe: true,
+                    time: formatDate(+new Date()),
+                    token: randomString(10)
+                })
                 scrollToPluginAIBottom()
                 const token = randomString(10)
                 setLoading(true)
                 setLoadingToken(token)
-                let obj:PluginAiItem = {info:{content:""},isMe:false,time: formatDate(+new Date()),token}
+                let obj: PluginAiItem = {info: {content: ""}, isMe: false, time: formatDate(+new Date()), token}
                 AddAIList(obj)
                 scrollToPluginAIBottom()
             }
-            
+
             onStartExecute(params)
         }
-    },[params])
+    }, [params])
 
-    const onDelContent = useMemoizedFn((item:PluginAiItem) => {
-        setPluginAIList((newPluginAIList)=>newPluginAIList.filter((itemIn)=>itemIn.token!==item.token))
+    const onDelContent = useMemoizedFn((item: PluginAiItem) => {
+        setPluginAIList((newPluginAIList) => newPluginAIList.filter((itemIn) => itemIn.token !== item.token))
     })
 
     /** 停止回答(断开请求连接) */
@@ -3080,7 +3085,7 @@ export const PluginAIComponent: React.FC<PluginAIComponentProps> = (props) => {
     })
 
     // 回复完成
-    const onEndReply = useMemoizedFn(()=>{
+    const onEndReply = useMemoizedFn(() => {
         debugPluginStreamEvent.stop()
         setParams(undefined)
         setLoading(false)
@@ -3088,91 +3093,118 @@ export const PluginAIComponent: React.FC<PluginAIComponentProps> = (props) => {
         setLoadingToken("")
         setResTime("")
     })
-    
+
     return (
-        <>{
-            visible&&<>
-            {
-                showOnly?
-                <div className={styles['plugin-ai-item']}>
-                    {isShowAI&&<div className={styles['ai-box']}>
-                    {pluginAIItem.map((item) => {
-                        const {token, isMe, time, info, scriptName} = item
-                        if (isMe) {
-                            return (
-                                <ChatUserContent key={token} classNameContent={styles["opt-content-auto"]} scriptName={scriptName} time={time} info={info} onDel={() => onDelContent(item)} />
-                            )
-                        } else {
-                            return (
-                                <PluginAIContent
-                                    key={token}
-                                    token={token}
-                                    loadingToken={loadingToken}
+        <>
+            {visible && (
+                <>
+                    {showOnly ? (
+                        <div className={styles["plugin-ai-item"]}>
+                            {isShowAI && (
+                                <div className={styles["ai-box"]}>
+                                    {pluginAIItem.map((item) => {
+                                        const {token, isMe, time, info, scriptName} = item
+                                        if (isMe) {
+                                            return (
+                                                <ChatUserContent
+                                                    key={token}
+                                                    classNameContent={styles["opt-content-auto"]}
+                                                    scriptName={scriptName}
+                                                    time={time}
+                                                    info={info}
+                                                />
+                                            )
+                                        } else {
+                                            return (
+                                                <PluginAIContent
+                                                    key={token}
+                                                    token={token}
+                                                    loadingToken={loadingToken}
+                                                    loading={loading}
+                                                    resTime={resTime}
+                                                    time={time}
+                                                    info={info}
+                                                    onStop={onStop}
+                                                />
+                                            )
+                                        }
+                                    })}
+                                </div>
+                            )}
+                            <div className={styles["result-box"]} style={isShowAI?{height:"40%"}:{height:"100%"}}>
+                                <PluginExecuteResult
+                                    streamInfo={streamInfo}
+                                    runtimeId={runtimeId}
                                     loading={loading}
-                                    resTime={resTime}
-                                    time={time}
-                                    info={info}
-                                    onStop={onStop}
-                                    onDel={() => onDelContent(item)}
+                                    defaultActiveKey={"Codec结果"}
+                                    pluginExecuteResultWrapper={styles["plugin-execute-result-wrapper"]}
+                                    // PluginTabsRightNode={
+                                    //     !isShowAI ? (
+                                    //         <div
+                                    //             className={classNames(
+                                    //                 styles["big-btn"],
+                                    //                 styles["btn-style"],
+                                    //                 styles["close-icon"]
+                                    //             )}
+                                    //             onClick={() => setShowOnly(false)}
+                                    //         >
+                                    //             <RemoveIcon />
+                                    //         </div>
+                                    //     ) : (
+                                    //         <></>
+                                    //     )
+                                    // }
                                 />
-                            )
-                        }
-                    })}
-                    </div>}
-                    <div className={styles['result-box']}>
-                        <PluginExecuteResult
-                            streamInfo={streamInfo}
-                            runtimeId={runtimeId}
-                            loading={loading}
-                            defaultActiveKey={"Codec结果"}
-                            pluginExecuteResultWrapper={styles["plugin-execute-result-wrapper"]}
-                            PluginTabsRightNode={!isShowAI?<div
-                                className={classNames(styles["big-btn"], styles["btn-style"], styles["close-icon"])}
-                                onClick={() => setShowOnly(false)}
-                            >
-                                <RemoveIcon />
-                            </div>:<></>}
-                        />
-                    </div>
-                </div>
-            :<div className={styles["plugin-ai-list"]}>
-            {pluginAIList.length>0 ? (
-                <div style={{overflow:"auto",height:"100%"}} ref={pluginAIListRef}>
-                    {pluginAIList.map((item) => {
-                        const {token, isMe, time, info, scriptName} = item
-                        if (isMe) {
-                            return (
-                                <ChatUserContent key={token} classNameContent={styles["opt-content-auto"]} scriptName={scriptName} time={time} info={info} onDel={() => onDelContent(item)} />
-                            )
-                        } else {
-                            return (
-                                <PluginAIContent
-                                    key={token}
-                                    token={token}
-                                    loadingToken={loadingToken}
-                                    loading={loading}
-                                    resTime={resTime}
-                                    time={time}
-                                    info={info}
-                                    onStop={onStop}
-                                    onDel={() => onDelContent(item)}
-                                />
-                            )
-                        }
-                    })}
-                </div>
-            ) : (
-                <div className={styles["welcome-plugin-ai"]}>
-                    <div className={styles["header-title"]}>
-                        <div className={classNames(styles["title-style"])}>可在WebFuzzer中调用AI插件进行体验噢~👋</div>
-                    </div>
-                </div>
+                            </div>
+                        </div>
+                    ) : (
+                        <div className={styles["plugin-ai-list"]}>
+                            {pluginAIList.length > 0 ? (
+                                <div style={{overflow: "auto", height: "100%"}} ref={pluginAIListRef}>
+                                    {pluginAIList.map((item) => {
+                                        const {token, isMe, time, info, scriptName} = item
+                                        if (isMe) {
+                                            return (
+                                                <ChatUserContent
+                                                    key={token}
+                                                    classNameContent={styles["opt-content-auto"]}
+                                                    scriptName={scriptName}
+                                                    time={time}
+                                                    info={info}
+                                                    onDel={() => onDelContent(item)}
+                                                />
+                                            )
+                                        } else {
+                                            return (
+                                                <PluginAIContent
+                                                    key={token}
+                                                    token={token}
+                                                    loadingToken={loadingToken}
+                                                    loading={loading}
+                                                    resTime={resTime}
+                                                    time={time}
+                                                    info={info}
+                                                    onStop={onStop}
+                                                    onDel={() => onDelContent(item)}
+                                                />
+                                            )
+                                        }
+                                    })}
+                                </div>
+                            ) : (
+                                <div className={styles["welcome-plugin-ai"]}>
+                                    <div className={styles["header-title"]}>
+                                        <div className={classNames(styles["title-style"])}>
+                                            可在WebFuzzer中调用AI插件进行体验噢~👋
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    )}
+                </>
             )}
-        </div>
-        }
         </>
-        }</>
-       
     )
 }
 
@@ -3182,12 +3214,12 @@ interface PluginAIContentProps {
     /** 当前正在查询的那个回答的唯一标识符 */
     loadingToken: string
     time: string
-    info: {content:string}
+    info: {content: string}
     loading: boolean
     /** 查询的动态运行时间 */
     resTime: string
     onStop: () => void
-    onDel: () => void
+    onDel?: () => void
 }
 
 export const PluginAIContent: React.FC<PluginAIContentProps> = (props) => {
@@ -3224,9 +3256,9 @@ export const PluginAIContent: React.FC<PluginAIContentProps> = (props) => {
                                     iconColor={"#85899e"}
                                 />
                             </div>
-                            <div className={styles["right-btn"]} onClick={onDel}>
+                            {onDel&&<div className={styles["right-btn"]} onClick={onDel}>
                                 <TrashIcon />
-                            </div>
+                            </div>}
                         </>
                     )}
                 </div>
@@ -3241,28 +3273,32 @@ export const PluginAIContent: React.FC<PluginAIContentProps> = (props) => {
                                 </React.Fragment>
                             </div>
                         </>
-                    ):<>
-                    {showLoading && (
-                            <div className={styles["loading-wrapper"]}>
-                                <div
-                                    className={classNames(styles["loading-style"], styles["loading-dot-before"])}
-                                ></div>
-                                <div className={classNames(styles["loading-style"], styles["loading-dot"])}></div>
-                                <div className={classNames(styles["loading-style"], styles["loading-dot-after"])}></div>
-                            </div>
-                        )}
-                    </>
+                    ) : (
+                        <>
+                            {showLoading && (
+                                <div className={styles["loading-wrapper"]}>
+                                    <div
+                                        className={classNames(styles["loading-style"], styles["loading-dot-before"])}
+                                    ></div>
+                                    <div className={classNames(styles["loading-style"], styles["loading-dot"])}></div>
+                                    <div
+                                        className={classNames(styles["loading-style"], styles["loading-dot-after"])}
+                                    ></div>
+                                </div>
+                            )}
+                        </>
+                    )
                 ) : (
                     <div className={styles["content-style"]}>
-                        {
-                            info.content&&info.content.length !== 0?
+                        {info.content && info.content.length !== 0 ? (
                             <React.Fragment>
                                 <ChatMarkdown content={info.content} />
-                            </React.Fragment>:"请求出现错误，请稍候再试"
-                        }
+                            </React.Fragment>
+                        ) : (
+                            "请求出现错误，请稍候再试"
+                        )}
                     </div>
                 )}
-                
             </div>
         </div>
     )
