@@ -1171,7 +1171,7 @@ export const YakChatCS: React.FC<YakChatCSProps> = (props) => {
                                     <div className={styles["divider-style"]}></div>
                                 </>
                             )}
-                            {chatcsType === "PluginAI" && !showOnly && (
+                            {chatcsType === "PluginAI" && pluginAIList.length > 0 && !showOnly && (
                                 <>
                                     <Tooltip overlayClassName={styles["tooltip-wrapper"]} title={"清空插件输出"}>
                                         <div
@@ -1572,11 +1572,13 @@ const ChatUserContent: React.FC<ChatUserContentProps> = memo((props) => {
 
                     {scriptName && <span className={styles[""]}>{scriptName}</span>}
                 </div>
-                {onDel&&<div className={styles["header-right"]}>
-                    <div className={styles["right-btn"]} onClick={onDel}>
-                        <TrashIcon />
+                {onDel && (
+                    <div className={styles["header-right"]}>
+                        <div className={styles["right-btn"]} onClick={onDel}>
+                            <TrashIcon />
+                        </div>
                     </div>
-                </div>}
+                )}
             </div>
             <div className={classNames(styles["opt-content"], classNameContent || "")}>
                 <div className={styles["user-content-style"]}>{info.content}</div>
@@ -3002,6 +3004,11 @@ export const PluginAIComponent: React.FC<PluginAIComponentProps> = (props) => {
         onEnd: () => {
             onEndReply()
         },
+        onError: (e) => {
+            if (typeof e === "string") {
+                setLastAIList(e)
+            }
+        },
         setRuntimeId: (rId) => {
             yakitNotify("info", `调试任务启动成功，运行时 ID: ${rId}`)
             setRuntimeId(rId)
@@ -3131,13 +3138,14 @@ export const PluginAIComponent: React.FC<PluginAIComponentProps> = (props) => {
                                     })}
                                 </div>
                             )}
-                            <div className={styles["result-box"]} style={isShowAI?{height:"40%"}:{height:"100%"}}>
+                            <div className={styles["result-box"]} style={isShowAI ? {height: "40%"} : {height: "100%"}}>
                                 <PluginExecuteResult
                                     streamInfo={streamInfo}
                                     runtimeId={runtimeId}
                                     loading={loading}
                                     defaultActiveKey={"Codec结果"}
                                     pluginExecuteResultWrapper={styles["plugin-execute-result-wrapper"]}
+                                    onlyShowTabs={["Codec结果", "测试表", "Console"]}
                                     // PluginTabsRightNode={
                                     //     !isShowAI ? (
                                     //         <div
@@ -3249,16 +3257,20 @@ export const PluginAIContent: React.FC<PluginAIContentProps> = (props) => {
                         </YakitButton>
                     ) : (
                         <>
-                            <div className={styles["right-btn"]}>
-                                <CopyComponents
-                                    className={classNames(styles["copy-icon-style"])}
-                                    copyText={copyContent}
-                                    iconColor={"#85899e"}
-                                />
-                            </div>
-                            {onDel&&<div className={styles["right-btn"]} onClick={onDel}>
-                                <TrashIcon />
-                            </div>}
+                            {info.content.length > 0 && (
+                                <div className={styles["right-btn"]}>
+                                    <CopyComponents
+                                        className={classNames(styles["copy-icon-style"])}
+                                        copyText={copyContent}
+                                        iconColor={"#85899e"}
+                                    />
+                                </div>
+                            )}
+                            {onDel && (
+                                <div className={styles["right-btn"]} onClick={onDel}>
+                                    <TrashIcon />
+                                </div>
+                            )}
                         </>
                     )}
                 </div>

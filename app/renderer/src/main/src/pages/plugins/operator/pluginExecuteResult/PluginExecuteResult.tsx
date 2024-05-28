@@ -48,7 +48,7 @@ import {v4 as uuidv4} from "uuid"
 const {TabPane} = PluginTabs
 
 export const PluginExecuteResult: React.FC<PluginExecuteResultProps> = React.memo((props) => {
-    const {streamInfo, runtimeId, loading, defaultActiveKey, pluginExecuteResultWrapper = "",PluginTabsRightNode} = props
+    const {streamInfo, runtimeId, loading, defaultActiveKey, pluginExecuteResultWrapper = "",PluginTabsRightNode, onlyShowTabs} = props
 
     const renderTabContent = useMemoizedFn((ele: HoldGRPCStreamProps.InfoTab) => {
         switch (ele.type) {
@@ -85,13 +85,13 @@ export const PluginExecuteResult: React.FC<PluginExecuteResultProps> = React.mem
                 return <></>
         }
     })
-
+    
     const showTabs = useMemo(() => {
         if (streamInfo.riskState.length === 0) {
-            return streamInfo.tabsState.filter((item) => item.tabName !== "漏洞与风险")
+            return streamInfo.tabsState.filter((item) => item.tabName !== "漏洞与风险").filter((item)=>!onlyShowTabs||onlyShowTabs?.includes(item.tabName))
         }
-        return streamInfo.tabsState
-    }, [streamInfo.tabsState, streamInfo.riskState])
+        return streamInfo.tabsState.filter((item)=>!onlyShowTabs||onlyShowTabs?.includes(item.tabName))
+    }, [streamInfo.tabsState, streamInfo.riskState,onlyShowTabs])
 
     const tabBarRender = useMemoizedFn((tab: HoldGRPCStreamProps.InfoTab, length: number) => {
         if (tab.type === "risk") {

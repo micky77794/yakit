@@ -967,54 +967,59 @@ const UILayout: React.FC<UILayoutProp> = (props) => {
     // 判断打开 ChatCS-AI插件执行/全局网络配置第三方应用框
     const onFuzzerModal = useMemoizedFn((value) => {
         const val: {text?: string; scriptName: string; isAiPlugin:any} = JSON.parse(value)
-        if(val.isAiPlugin === "isGetPlugin" || val.isAiPlugin === "aiplugin-Get*plug-in"){
+        if(val.isAiPlugin === "isGetPlugin"){
             setCoedcPluginShow(true)
             return
         }
-        apiGetGlobalNetworkConfig().then((obj:GlobalNetworkConfig)=>{
-            const configType = obj.AppConfigs.map((item)=>item.Type).filter((item)=>["openai","chatglm","moonshot"].includes(item))
-            // 如若已配置 则打开执行框
-            if(configType.length>0){
-                openAIByChatCS({text: val.text, scriptName: val.scriptName,isAiPlugin:val.isAiPlugin})
-            }
-            else{
-                let m = showYakitModal({
-                    title: "添加第三方应用",
-                    width: 600,
-                    footer: null,
-                    closable: true,
-                    maskClosable: false,
-                    content: (
-                        <div style={{ margin: 24 }}>
-                            <ThirdPartyApplicationConfigForm
-                                onAdd={(e) => {
-                                    let existed = false
-                                    const existedResult = (obj.AppConfigs || []).map(
-                                        (i) => {
-                                            if (i.Type === e.Type) {
-                                                existed = true
-                                                return { ...i, ...e }
+        if(val.isAiPlugin){
+            apiGetGlobalNetworkConfig().then((obj:GlobalNetworkConfig)=>{
+                const configType = obj.AppConfigs.map((item)=>item.Type).filter((item)=>["openai","chatglm","moonshot"].includes(item))
+                // 如若已配置 则打开执行框
+                if(configType.length>0){
+                    openAIByChatCS({text: val.text, scriptName: val.scriptName,isAiPlugin:val.isAiPlugin})
+                }
+                else{
+                    let m = showYakitModal({
+                        title: "添加第三方应用",
+                        width: 600,
+                        footer: null,
+                        closable: true,
+                        maskClosable: false,
+                        content: (
+                            <div style={{ margin: 24 }}>
+                                <ThirdPartyApplicationConfigForm
+                                    onAdd={(e) => {
+                                        let existed = false
+                                        const existedResult = (obj.AppConfigs || []).map(
+                                            (i) => {
+                                                if (i.Type === e.Type) {
+                                                    existed = true
+                                                    return { ...i, ...e }
+                                                }
+                                                return { ...i }
                                             }
-                                            return { ...i }
+                                        )
+                                        if (!existed) {
+                                            existedResult.push(e)
                                         }
-                                    )
-                                    if (!existed) {
-                                        existedResult.push(e)
-                                    }
-                                    const params = {...obj, AppConfigs: existedResult}
-                                    apiSetGlobalNetworkConfig(params).then(() => {
-                                        openAIByChatCS({text: val.text, scriptName: val.scriptName,isAiPlugin:val.isAiPlugin})
-                                        m.destroy()
-                                    })
-                                }}
-                                onCancel={() => m.destroy()}
-                            />
-                        </div>
-                    )
-                })
-            }
-        
-        })
+                                        const params = {...obj, AppConfigs: existedResult}
+                                        apiSetGlobalNetworkConfig(params).then(() => {
+                                            openAIByChatCS({text: val.text, scriptName: val.scriptName,isAiPlugin:val.isAiPlugin})
+                                            m.destroy()
+                                        })
+                                    }}
+                                    onCancel={() => m.destroy()}
+                                />
+                            </div>
+                        )
+                    })
+                }
+            
+            })
+        }
+        else{
+            openAIByChatCS({text: val.text, scriptName: val.scriptName,isAiPlugin:val.isAiPlugin})
+        }
     })
 
     useEffect(() => {

@@ -1510,6 +1510,7 @@
         .plugin-execute-result-wrapper{
             height: 100%;
             padding-top: 2px;
+            min-height: auto;
             .big-btn {
                 padding: 2px;
                 svg {
