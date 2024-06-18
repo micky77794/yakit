@@ -419,15 +419,15 @@ const Main: React.FC<MainProp> = React.memo((props) => {
 
     const waterMarkStr = (): string => {
         // 社区版无水印
-        if (isCommunityEdition()) {
-            return ""
-        } else if (userInfo.isLogin) {
-            return userInfo.companyName || ""
-        } else if (isEnpriTrace()) {
-            return "EnpriTrace-试用版"
-        } else if (isEnpriTraceAgent()) {
-            return "EnpriTraceAgent-试用版"
-        }
+        // if (isCommunityEdition()) {
+        //     return ""
+        // } else if (userInfo.isLogin) {
+        //     return userInfo.companyName || ""
+        // } else if (isEnpriTrace()) {
+        //     return "EnpriTrace-试用版"
+        // } else if (isEnpriTraceAgent()) {
+        //     return "EnpriTraceAgent-试用版"
+        // }
         return ""
     }
 
