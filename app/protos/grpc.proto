@@ -816,10 +816,14 @@ message HybridScanRequest {
 
 message DuplexConnectionRequest {
   bytes Data = 1;
+  string MessageType = 2;
+  int64 Timestamp = 3;
 }
 
 message DuplexConnectionResponse {
   bytes Data = 1;
+  string MessageType = 2;
+  int64 Timestamp = 3;
 }
 
 message PcapMetadataRequest {
