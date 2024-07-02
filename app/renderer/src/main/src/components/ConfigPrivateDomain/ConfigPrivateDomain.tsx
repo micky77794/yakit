@@ -8,6 +8,7 @@ import {useDebounceFn, useMemoizedFn, useGetState} from "ahooks"
 import {getRemoteValue, setRemoteValue} from "@/utils/kv"
 import {useStore} from "@/store"
 import yakitImg from "@/assets/yakit.jpg"
+import telecomLogoSmall from "@/assets/telecom_logo_small.png"
 import {API} from "@/services/swagger/resposeType"
 import {YakitButton} from "../yakitUI/YakitButton/YakitButton"
 import {YakitAutoComplete} from "../yakitUI/YakitAutoComplete/YakitAutoComplete"
@@ -260,7 +261,7 @@ export const ConfigPrivateDomain: React.FC<ConfigPrivateDomainProps> = React.mem
             {enterpriseLogin && (
                 <div className='login-title-show'>
                     <div className='icon-box'>
-                        <img src={yakitImg} className='type-icon-img' />
+                        <img src={telecomLogoSmall} className='type-icon-img' />
                     </div>
                     <div className='title-box'>四川电信资阳专版企业登录</div>
                 </div>
