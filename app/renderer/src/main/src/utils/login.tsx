@@ -46,11 +46,11 @@ export const loginOutLocal = (userInfo: UserInfoProps) => {
                     OnlineBaseUrl
                 })
                 .finally(() => {
-                    ipcRenderer.send("user-sign-out")
+                    ipcRenderer.send("user-sign-out",{isEnpriTrace:isEnpriTrace()})
                     emiter.emit("onRefLocalPluginList", "")
                 })
         } else {
-            ipcRenderer.send("user-sign-out")
+            ipcRenderer.send("user-sign-out",{isEnpriTrace:isEnpriTrace()})
         }
     })
 }
