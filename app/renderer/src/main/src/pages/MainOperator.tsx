@@ -422,11 +422,11 @@ const Main: React.FC<MainProp> = React.memo((props) => {
         if (isCommunityEdition()) {
             return ""
         } else if (userInfo.isLogin) {
-            return userInfo.companyName || ""
+            return "农业银行专用"
         } else if (isEnpriTrace()) {
-            return "EnpriTrace-试用版"
+            return "农业银行专用"
         } else if (isEnpriTraceAgent()) {
-            return "EnpriTraceAgent-试用版"
+            return "农业银行专用"
         }
         return ""
     }
