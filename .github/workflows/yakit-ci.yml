@@ -245,11 +245,11 @@ jobs:
     needs:
       - build_yakit
     runs-on: ubuntu-latest
-    # steps:
-    #   - uses: actions/checkout@v2
-    #   - uses: actions/setup-node@v2
-    #     with:
-    #       node-version: 18.18.2
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: 18.18.2
 
     #   # 提取版本
     #   - name: Extract Version
