@@ -23,7 +23,7 @@ import {YaklangEngineWatchDog, YaklangEngineWatchDogCredential} from "@/componen
 import {StringToUint8Array} from "@/utils/str"
 import {EngineLog} from "./EngineLog"
 import {BaseMiniConsole} from "../baseConsole/BaseConsole"
-import {getReleaseEditionName, isCommunityEdition, isEnpriTraceAgent, isEnterpriseEdition} from "@/utils/envfile"
+import {getReleaseEditionName, isCommunityEdition, isEnpriTrace, isEnpriTraceAgent, isEnterpriseEdition} from "@/utils/envfile"
 import {AllKillEngineConfirm} from "./AllKillEngineConfirm"
 import {SoftwareSettings} from "@/pages/softwareSettings/SoftwareSettings"
 import {PolygonIcon, StopIcon} from "@/assets/newIcon"
@@ -73,6 +73,7 @@ import {Tooltip} from "antd"
 import {openABSFileLocated} from "@/utils/openWebsite"
 import {clearTerminalMap, getMapAllTerminalKey} from "@/pages/YakRunner/BottomEditorDetails/TerminalBox/TerminalMap"
 import useHoldGRPCStream from "@/hook/useHoldGRPCStream/useHoldGRPCStream"
+import { visitorsStatisticsFun } from "@/utils/visitorsStatistics"
 
 const {ipcRenderer} = window.require("electron")
 
@@ -459,6 +460,15 @@ const UILayout: React.FC<UILayoutProp> = (props) => {
             setYakitConsole(false)
         }
     }, [engineLink])
+
+    // 企业版游客信息统计埋点
+    useEffect(()=>{
+        if(engineLink && isEnpriTrace()){
+            visitorsStatisticsFun()
+            let id = setInterval(visitorsStatisticsFun, 60000)
+            return () => clearInterval(id)
+        }
+    },[engineLink])
 
     const setTimeoutLoading = useMemoizedFn((setLoading: (v: boolean) => any) => {
         setLoading(true)
